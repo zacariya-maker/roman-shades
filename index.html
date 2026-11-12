@@ -92,6 +92,8 @@ h3{font-size:15px;font-weight:600;margin:0}
 .size-chip.empty{background:#3A211A;color:#fff}
 .size-chip svg{width:14px;height:14px;flex:none}
 @media (max-width:560px){.size-chip{top:14px;right:8px;height:30px;padding:0 10px;font-size:11.5px}}
+#bar-send .sm{display:none}
+@media (max-width:560px){#bar-send .sm{display:inline}}
 .bar-sum{border:0;background:none;padding:0;text-align:left;color:var(--fg);font:inherit;cursor:pointer}
 .dims{display:flex;flex-direction:column;gap:14px}
 .dim{display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px 12px}
@@ -148,7 +150,8 @@ h3{font-size:15px;font-weight:600;margin:0}
   .m-tab i{width:22px;height:22px}
   .bar-in{padding-block:8px;gap:8px}
   .bar .btn{height:38px;padding:0 14px;font-size:13px}
-  .bar-sum b{font-size:13px}
+  .bar-sum b{font-size:15px}
+  #bar-send .lg{display:none}
   .bar-sum span{font-size:11px}
   .m-toast{display:block;position:absolute;left:50%;top:52px;transform:translate(-50%,-6px);margin:0;padding:7px 14px;border-radius:999px;background:rgba(30,20,16,.78);color:#fff;font-size:13px;white-space:nowrap;max-width:calc(100% - 24px);overflow:hidden;text-overflow:ellipsis;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;backdrop-filter:blur(6px)}
   .m-toast.show{opacity:1;transform:translate(-50%,0)}
@@ -313,7 +316,7 @@ pre.msg{white-space:pre-wrap;word-break:break-word;background:var(--soft);border
   <div class="wrap bar-in">
     <button class="btn ghost" id="bar-back">Дизайны</button>
     <button type="button" class="bar-sum" id="bar-sum" data-sizes><b id="bar-title"></b><span id="bar-note"></span></button>
-    <button class="btn" id="bar-send">Отправить дизайн</button>
+    <button class="btn" id="bar-send"><span class="lg">Отправить дизайн</span><span class="sm">Заказать</span></button>
   </div>
 </div>
 
