@@ -591,7 +591,9 @@ const worksOf = d => (WORKS[d.code]||[]).map(f=>`works/d${d.code}/${f}`);
 
 /* ---------- Превью ---------- */
 const LIGHT_T = .5; // светопропускаемость тканей «Клот» для режима «На просвет»
-const SHADE_CM = 140; // превью всегда рисует штору шириной 140 см, чтобы канты и декор были в реальном масштабе
+const SHADE_CM = 140; // штора по умолчанию 140 × 210 см; когда клиент указал размер, схема рисуется в его пропорциях
+// размер шторы на схеме: введённый клиентом, иначе 140 × 210 (миниатюры — всегда по умолчанию)
+const shadeSize = thumb => !thumb && S.size ? S.size : { w:SHADE_CM, h:210 };
 function tokens(){
   const s=getComputedStyle(document.documentElement), g=k=>s.getPropertyValue(k).trim();
   return { wall:g('--wall'), wall2:g('--wall2'), glass1:g('--glass1'), glass2:g('--glass2'), frame:g('--frame'), cornice:g('--cornice') };
@@ -626,17 +628,17 @@ function draw(cv, d, fabrics, widths, view, thumb){
   let g=c.createLinearGradient(0,0,0,H); g.addColorStop(0,T.wall); g.addColorStop(1,T.wall2);
   c.fillStyle=g; c.fillRect(0,0,W,H);
 
-  // штора 140 × 210 без окна: подбираем размер так, чтобы штора вместе с низом и декором
+  // штора без окна в пропорциях заказа: подбираем размер так, чтобы штора вместе с низом и декором
   // (фигурный край, рюши, кисть, помпоны) заняла всё превью
   const band=SEG_BAND(W,thumb), Ha=H-band-(innerWidth<=560 && !$('m-width').hidden ? band : band*.4);  // снизу — место под ширину канта на телефоне
-  const r=140/210, extraCm=d.depth+(d.ruffle||0)+(d.tassel?24:0)+(d.pompons?7:0);
-  const fit=thumb?.86:.9, ww=Math.min(W*(thumb?.72:.8), Ha*fit/(.9/r+extraCm/SHADE_CM)), wh=ww/r;
-  const shownH=ww*(.9/r+extraCm/SHADE_CM), wx=(W-ww)/2, wy=band+(Ha-shownH)/2+ww*.02;
+  const Z=shadeSize(thumb), r=Z.w/Z.h, extraCm=d.depth+(d.ruffle||0)+(d.tassel?24:0)+(d.pompons?7:0);
+  const fit=thumb?.86:.9, ww=Math.min(W*(thumb?.72:.8), Ha*fit/(.9/r+extraCm/Z.w)), wh=ww/r;
+  const shownH=ww*(.9/r+extraCm/Z.w), wx=(W-ww)/2, wy=band+(Ha-shownH)/2+ww*.02;
   const fr=Math.max(3,Math.min(10,ww*.035));
 
   // геометрия: ровное полотно, складки (если приподнята) и нижняя часть высотой hem
   const pad=fr*1.6, x0=wx-pad, x1=wx+ww+pad, sw=x1-x0, y0=wy-pad, full=wh+pad*2, mid=(x0+x1)/2;
-  const ppc=sw/SHADE_CM;
+  const ppc=sw/Z.w;  // пикселей на сантиметр: канты и декор в реальном масштабе
   const fh=Math.max(6,Math.min(full*.07,sw*.11)), b=fh*.3, hemPx=Math.max(d.hem*ppc,fh);
   const lowered = view!=='raised', nf = lowered ? 0 : 2;
   const yF = lowered ? y0+full-hemPx : Math.max(y0+full*.3, y0+full*.9-nf*fh-hemPx);
@@ -882,7 +884,7 @@ function renderEditor(){
       <div class="width-top"><label for="w-range">Ширина канта</label>
         <div class="stepper"><button type="button" data-w="-0.5" aria-label="Уже на 0,5 см">−</button><output id="w-out" for="w-range">${cm(S.widths[p])}</output><button type="button" data-w="0.5" aria-label="Шире на 0,5 см">+</button></div></div>
       <input type="range" id="w-range" min="1" max="12" step="0.5" value="${S.widths[p]}">
-      <small>От 1 до 12 см. Превью показывает ширину в масштабе шторы 140 см.</small></div>`:''}
+      <small>От 1 до 12 см. Схема показывает кант в масштабе шторы ${shadeSize(false).w} см.</small></div>`:''}
     ${photo && S.widths[p]!=null?`<p class="note">На фото ширина канта как у образца. Чтобы изменить её, переключите превью на «Схему».</p>`:''}
     <div class="chips scroll" role="radiogroup" aria-label="Тип ткани">${COLLECTIONS.map(c=>`<label class="chip"><input type="radio" name="col" value="${c.id}" ${c.id===col?'checked':''}><span>${c.name}</span></label>`).join('')}</div>
     <div class="fabrics">${collection.items.map(([n])=>{ const x=fab(`${col}-${n}`), on=x.id===f.id;
@@ -1092,7 +1094,7 @@ function readSizes(clamp, src){
   if (z.chain==null) $('d-chain').value=chainOf(z);
   const ok=['w','h'].every(k=>z[k]>=LIMITS[k][0] && z[k]<=LIMITS[k][1]);
   $('d-total').textContent = ok ? rub(price()) : '—';
-  updateNote();
+  updateNote(); if (ok) redraw();
 }
 document.addEventListener('input', e=>{ const m=e.target.id.match(/^d-(w|h|chain)$/); if (m) readSizes(false, m[1]); });
 document.addEventListener('focusout', e=>{ const m=e.target.id.match(/^d-(w|h|chain)$/); if (m) readSizes(true, m[1]); });
