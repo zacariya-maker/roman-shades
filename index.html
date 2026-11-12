@@ -138,6 +138,11 @@ h3{font-size:15px;font-weight:600;margin:0}
   .m-tab.on{border-color:var(--fg);box-shadow:inset 0 0 0 1px var(--fg)}
   .m-zoom{margin-left:auto;padding:0 12px}
   .m-row{display:flex;align-items:center;gap:8px;min-width:0}
+  .m-width{display:flex;align-items:center;gap:6px;min-width:0;height:30px;padding:0 4px 0 12px;border:1px solid var(--line);border-radius:999px}
+  .m-width label{flex:none;font-size:12px;font-weight:500;white-space:nowrap}
+  .m-width input{flex:1;min-width:0;accent-color:var(--fg)}
+  .m-width button{flex:none;width:24px;height:24px;border:0;border-radius:50%;background:var(--soft);color:var(--fg);font-size:15px;line-height:1;cursor:pointer}
+  .m-width output{flex:none;width:54px;text-align:right;padding-right:8px;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
   .m-col{flex:none;position:relative}
   .m-col select{appearance:none;-webkit-appearance:none;height:30px;max-width:112px;padding:0 24px 0 10px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--fg);font:inherit;font-size:12px;font-weight:500;text-overflow:ellipsis}
   .m-col::after{content:'';position:absolute;right:10px;top:12px;width:5px;height:5px;border-right:1.5px solid var(--fg);border-bottom:1.5px solid var(--fg);transform:rotate(45deg);pointer-events:none}
@@ -881,9 +886,13 @@ function colOptions(cur){
 // телефон: вкладки частей и одна строка тканей под шторой
 function renderDock(){
   const d=design(S.design), p=S.part, f=fab(S.fabrics[p]), old=document.querySelector('.m-strip'), keep=old && old.dataset.part===p ? old.scrollLeft : null;
-  const list=FABRICS.filter(x=>x.col===(S.browse[p] || f.col));
+  const list=FABRICS.filter(x=>x.col===(S.browse[p] || f.col)), wp=photoMode(d) ? null : widthPart(d);
   $('m-dock').innerHTML = `<div class="m-tabs" role="tablist" aria-label="Части шторы">${shownParts(d).map(q=>`<button type="button" class="m-tab${q===p?' on':''}" data-part="${q}" role="tab" aria-selected="${q===p}"><i style="background-image:url(${swatch(fab(S.fabrics[q]))})"></i>${label(q,true)}</button>`).join('')}
       <button type="button" class="m-tab m-zoom" data-zoom aria-label="Рассмотреть ткань ${fabLabel(f)} крупно">Вблизи</button></div>
+    ${wp?`<div class="m-width"><label for="m-w-range">${shownParts(d).filter(q=>S.widths[q]!=null).length>1 ? label(wp,true) : 'Ширина канта'}</label>
+      <button type="button" data-mw="-0.5" aria-label="Уже на 0,5 см">−</button>
+      <input type="range" id="m-w-range" data-part="${wp}" min="1" max="12" step="0.5" value="${S.widths[wp]}">
+      <button type="button" data-mw="0.5" aria-label="Шире на 0,5 см">+</button><output id="m-w-out" for="m-w-range">${cm(S.widths[wp])}</output></div>`:''}
     <div class="m-row"><label class="m-col"><span class="sr">Каталог тканей</span><select name="col" aria-label="Каталог тканей">${colOptions(S.browse[p] || f.col)}</select></label>
     <div class="m-strip" data-part="${p}">${list.map(x=>`<button type="button" class="m-sw${x.id===f.id?' on':''}" data-fab="${x.id}" aria-pressed="${x.id===f.id}"><i style="background-image:url(${swatch(x)})"></i>${x.name.replace('№ ','')}</button>`).join('')}</div></div>`;
   const strip=document.querySelector('.m-strip'), on=strip.querySelector('.on');
@@ -948,11 +957,14 @@ function redraw(){
   }
   else drawThumbs();
 }
-function setWidth(v){
-  v=Math.min(12,Math.max(1,Math.round(v*2)/2)); S.widths[S.part]=v;
-  $('w-out').textContent=cm(v); $('w-range').value=v;
+function setWidth(v, part=S.part){
+  v=Math.min(12,Math.max(1,Math.round(v*2)/2)); S.widths[part]=v;
+  if (part===S.part && $('w-out')){ $('w-out').textContent=cm(v); $('w-range').value=v; }
+  if ($('m-w-out')){ $('m-w-out').textContent=cm(v); $('m-w-range').value=v; }
   renderParts(); redraw();
 }
+// какой кант регулирует ползунок под шторой на телефоне: выбранный во вкладках, иначе первый кант дизайна
+const widthPart = d => S.widths[S.part]!=null ? S.part : shownParts(d).find(p=>S.widths[p]!=null);
 
 /* ---------- Навигация ---------- */
 const route = () => location.hash==='#fabrics' ? 'fabrics' : 'designs';
@@ -974,6 +986,7 @@ document.addEventListener('click', e=>{
   if (ds.fab){ S.custom=true; S.fabrics[S.part]=ds.fab; delete S.browse[S.part]; linkParts(design(S.design)); renderParts(); renderEditor(); redraw(); updateNote(); return; }
   if (ds.same!==undefined){ S.fabrics[S.part]=S.fabrics.main; delete S.browse[S.part]; linkParts(design(S.design)); renderParts(); renderEditor(); redraw(); updateNote(); return; }
   if (ds.w){ setWidth(S.widths[S.part]+Number(ds.w)); return; }
+  if (ds.mw){ const wp=widthPart(design(S.design)); setWidth(S.widths[wp]+Number(ds.mw), wp); return; }
   if (ds.view){ S.view=ds.view; syncView(); redraw(); return; }
   if (ds.mode){ S.photo=ds.mode==='photo'; renderFabricsView(); return; }
   if (t.id==='bar-back'){ location.hash='designs'; return; }
@@ -993,7 +1006,8 @@ document.addEventListener('change', e=>{
   if (t.name==='flt'){ S.filter=t.value; renderGrid(); }
   if (t.name==='col'){ S.browse[S.part]=t.value; renderEditor(); }
 });
-document.addEventListener('input', e=>{ if (e.target.id==='w-range') setWidth(Number(e.target.value)); });
+document.addEventListener('input', e=>{ if (e.target.id==='w-range') setWidth(Number(e.target.value));
+  if (e.target.id==='m-w-range') setWidth(Number(e.target.value), e.target.dataset.part); });
 function updateNote(){
   const d=design(S.design), z=S.size;
   $('bar-title').textContent = z ? `≈ ${rub(price())}` : 'Узнать цену';
