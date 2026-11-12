@@ -1008,21 +1008,26 @@ const PRICE = {
   allowance: .2,        // м припуска с каждой стороны
   roll: 3,              // м — высота рулона: ткань идёт «на ширину», пока штора с припусками ниже рулона
   trim: .5,             // м ткани на канты и отделку — на каждую ткань, кроме основы
+  ruffle: .3,           // м ткани на рюши — отдельно от кантов
   fabric: { klot: 3000 },  // ₽ за погонный метр по коллекциям
-  decor: { pompons: 0, tassel: 0 },  // помпоны, кисти, бусины… — ₽ за метр ширины, цены добавим
+  perMeter: { pompons: 1000 },  // ₽ за метр ширины шторы: помпоны, позже репсы, бусины…
+  perPiece: { tassel: 500 },    // ₽ за штуку: кисть
   round: 100,           // округляем только итог, вверх
 };
-const LIMITS = { w:[40,300], h:[100,600], chain:[30,600] };
+const LIMITS = { w:[40,250], h:[100,500], chain:[30,500] };
 const rub = n => n.toLocaleString('ru-RU')+' ₽';
 const chainOf = z => z.chain ?? Math.round(z.h*2/3/5)*5;  // по умолчанию цепь ≈ ⅔ высоты
 function price(){
   const d=design(S.design), z=S.size; if (!z) return 0;
   const w=z.w/100, h=z.h/100, a=PRICE.allowance*2, cost=id=>PRICE.fabric[fab(id).col]||0;
   const mainM = h+a<=PRICE.roll ? w+a : (h+a)*Math.ceil((w+a)/PRICE.roll);   // штора выше рулона — кроим по высоте
-  const trims = new Set(partsOf(d).filter(p=>p!=='main' && !(p in PRICE.decor)).map(p=>S.fabrics[p]));
+  const parts=partsOf(d), bought=p=>p in PRICE.perMeter || p in PRICE.perPiece;
+  // канты, низ, банты: по 0,5 м на каждую разную ткань; рюши — своя норма
+  const trims = new Set(parts.filter(p=>p!=='main' && p!=='ruffle' && !bought(p)).map(p=>S.fabrics[p]));
   let sum = mainM*cost(S.fabrics.main) + [...trims].reduce((t,id)=>t+PRICE.trim*cost(id),0)
+          + (parts.includes('ruffle') ? PRICE.ruffle*cost(S.fabrics.ruffle) : 0)
           + w*PRICE.cornice + w*h*PRICE.work
-          + partsOf(d).filter(p=>p in PRICE.decor).reduce((t,p)=>t+w*PRICE.decor[p],0);
+          + parts.reduce((t,p)=>t+(PRICE.perMeter[p]||0)*w+(PRICE.perPiece[p]||0),0);
   return Math.ceil(sum/PRICE.round)*PRICE.round;
 }
 function openSizes(){
