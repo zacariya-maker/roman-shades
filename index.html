@@ -138,13 +138,18 @@ h3{font-size:15px;font-weight:600;margin:0}
   .m-tab.on{border-color:var(--fg);box-shadow:inset 0 0 0 1px var(--fg)}
   .m-zoom{margin-left:auto;padding:0 12px}
   .m-row{display:flex;align-items:center;gap:8px;min-width:0}
-  .m-width{position:absolute;left:8px;right:8px;bottom:10px;display:flex;align-items:center;gap:6px;min-width:0;height:34px;padding:0 4px 0 12px;border-radius:999px;background:rgba(255,255,255,.8);color:#3A211A;backdrop-filter:blur(6px)}
+  .m-width{position:absolute;left:8px;right:8px;bottom:8px;display:flex;align-items:center;gap:4px;min-width:0;height:42px;padding:0 4px 0 12px;border-radius:999px;background:rgba(255,255,255,.8);color:#3A211A;backdrop-filter:blur(6px)}
   .m-width[hidden]{display:none}
   .m-width label{flex:none;font-size:12px;font-weight:500;white-space:nowrap}
   .m-width input{flex:1;min-width:0;accent-color:var(--fg)}
-  .m-width input{accent-color:#3A211A}
-  .m-width button{flex:none;width:26px;height:26px;border:0;border-radius:50%;background:rgba(58,33,26,.08);color:#3A211A;font-size:15px;line-height:1;cursor:pointer}
-  .m-width output{flex:none;width:54px;text-align:right;padding-right:8px;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+  /* крупный ползунок: удобно тянуть пальцем */
+  .m-width input{-webkit-appearance:none;appearance:none;height:34px;background:transparent;margin:0}
+  .m-width input::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:rgba(58,33,26,.22)}
+  .m-width input::-moz-range-track{height:4px;border-radius:2px;background:rgba(58,33,26,.22)}
+  .m-width input::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;margin-top:-11px;border-radius:50%;background:#3A211A;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+  .m-width input::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#3A211A;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+  .m-width button{flex:none;width:34px;height:34px;border:0;border-radius:50%;background:rgba(58,33,26,.08);color:#3A211A;font-size:18px;line-height:1;cursor:pointer}
+  .m-width output{flex:none;width:46px;text-align:right;padding-right:6px;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
   .m-col{flex:none;position:relative}
   .m-col select{appearance:none;-webkit-appearance:none;height:30px;max-width:112px;padding:0 24px 0 10px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--fg);font:inherit;font-size:12px;font-weight:500;text-overflow:ellipsis}
   .m-col::after{content:'';position:absolute;right:10px;top:12px;width:5px;height:5px;border-right:1.5px solid var(--fg);border-bottom:1.5px solid var(--fg);transform:rotate(45deg);pointer-events:none}
@@ -896,7 +901,7 @@ function renderDock(){
     <div class="m-strip" data-part="${p}">${list.map(x=>`<button type="button" class="m-sw${x.id===f.id?' on':''}" data-fab="${x.id}" aria-pressed="${x.id===f.id}"><i style="background-image:url(${swatch(x)})"></i>${x.name.replace('№ ','')}</button>`).join('')}</div></div>`;
   // ширина канта — внизу превью, только в «Схеме»
   $('m-width').hidden=!wp;
-  $('m-width').innerHTML = wp ? `<label for="m-w-range">${shownParts(d).filter(q=>S.widths[q]!=null).length>1 ? label(wp,true) : 'Ширина канта'}</label>
+  $('m-width').innerHTML = wp ? `<label for="m-w-range">${shownParts(d).filter(q=>S.widths[q]!=null).length>1 ? label(wp,true).replace(/ кант$/,'') : 'Кант'}</label>
       <button type="button" data-mw="-0.5" aria-label="Уже на 0,5 см">−</button>
       <input type="range" id="m-w-range" data-part="${wp}" min="1" max="12" step="0.5" value="${S.widths[wp]}">
       <button type="button" data-mw="0.5" aria-label="Шире на 0,5 см">+</button><output id="m-w-out" for="m-w-range">${cm(S.widths[wp])}</output>` : '';
