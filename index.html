@@ -100,6 +100,31 @@ h3{font-size:15px;font-weight:600;margin:0}
 }
 .light-note{position:absolute;left:12px;right:12px;bottom:18px;margin:0;padding:7px 12px;border-radius:12px;background:rgba(255,255,255,.82);color:#3A211A;font-size:12px;line-height:1.35;text-align:center;backdrop-filter:blur(6px)}
 .panel{min-width:0;display:flex;flex-direction:column;gap:22px}
+/* ---------- Телефон: конструктор на одном экране ----------
+   штора на всю свободную высоту, под ней вкладки частей и строка тканей; свайпы по шторе — дизайн и цвета */
+.m-dock,.m-toast{display:none}
+@media (max-width:560px){
+  .product{padding-top:0}
+  .stage{position:relative;top:auto;padding-block:8px 4px}
+  .stage canvas{height:calc(100svh - var(--head-h) - env(safe-area-inset-top,0px) - var(--bar-h,76px) - var(--dock-h,128px) - 16px);min-height:280px;touch-action:none}
+  #parts,.editor .fabrics,.editor .chips,.editor .ed-head{display:none}
+  .product{gap:12px;grid-template-columns:minmax(0,1fr)}
+  .m-dock{display:flex;flex-direction:column;gap:8px;min-width:0}
+  .m-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+  .m-tabs::-webkit-scrollbar,.m-strip::-webkit-scrollbar{display:none}
+  .m-tab{flex:none;display:flex;align-items:center;gap:6px;height:34px;padding:0 12px 0 4px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--fg);font:inherit;font-size:13px;font-weight:500;white-space:nowrap;cursor:pointer}
+  .m-tab i{width:26px;height:26px;border-radius:50%;background:center/cover no-repeat;border:1px solid var(--line)}
+  .m-tab.on{border-color:var(--fg);box-shadow:inset 0 0 0 1px var(--fg)}
+  .m-zoom{margin-left:auto;padding:0 12px}
+  .m-strip{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding:2px 2px 4px;scroll-snap-type:x proximity}
+  .m-sw{flex:none;display:flex;flex-direction:column;align-items:center;gap:3px;padding:0;border:0;background:none;color:var(--muted);font:inherit;font-size:11px;cursor:pointer;scroll-snap-align:center}
+  .m-sw i{width:48px;height:48px;border-radius:50%;background:center/cover no-repeat;border:1px solid var(--line)}
+  .m-sw.on{color:var(--fg);font-weight:600}
+  .m-sw.on i{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--fg)}
+  .m-toast{display:block;position:absolute;left:50%;top:52px;transform:translate(-50%,-6px);margin:0;padding:7px 14px;border-radius:999px;background:rgba(30,20,16,.78);color:#fff;font-size:13px;white-space:nowrap;max-width:calc(100% - 24px);overflow:hidden;text-overflow:ellipsis;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;backdrop-filter:blur(6px)}
+  .m-toast.show{opacity:1;transform:translate(-50%,0)}
+  .m-toast.hint{white-space:pre-line;text-align:center;border-radius:14px;width:max-content;line-height:1.45}
+}
 @media (min-width:900px){
   .product{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:56px;align-items:start;padding-top:32px}
   .stage{top:calc(env(safe-area-inset-top,0px) + var(--head-h) + 20px);padding:0}
@@ -240,8 +265,10 @@ pre.msg{white-space:pre-wrap;word-break:break-word;background:var(--soft);border
           <button type="button" data-view="down">Опущена</button>
           <button type="button" data-view="light">На просвет</button>
         </div>
+        <p class="m-toast" id="m-toast" aria-live="polite"></p>
         <p class="light-note" id="light-note" hidden>Светопропускаемость около 50%: ткань мягко рассеивает дневной свет, но не затемняет комнату полностью. Это не блэкаут.</p>
       </div>
+      <div class="m-dock" id="m-dock"></div>
       <div class="panel">
         <div class="d-head" id="d-head"></div>
         <div class="works" id="works"></div>
@@ -808,6 +835,65 @@ function renderEditor(){
     <div class="fabrics">${collection.items.map(([n])=>{ const x=fab(`${col}-${n}`), on=x.id===f.id;
       return `<button type="button" class="fab${on?' on':''}" data-fab="${x.id}" aria-pressed="${on}"><i style="background-image:url(${swatch(x)})"></i><span>${x.name}</span></button>`; }).join('')}</div>
     ${p!=='main'?`<button type="button" class="link" data-same>Взять основную ткань</button>`:''}`;
+  renderDock();
+}
+// телефон: вкладки частей и одна строка тканей под шторой
+function renderDock(){
+  const d=design(S.design), p=S.part, f=fab(S.fabrics[p]), old=document.querySelector('.m-strip'), keep=old && old.dataset.part===p ? old.scrollLeft : null;
+  const list=FABRICS.filter(x=>x.col===(S.browse[p] || f.col));
+  $('m-dock').innerHTML = `<div class="m-tabs" role="tablist" aria-label="Части шторы">${shownParts(d).map(q=>`<button type="button" class="m-tab${q===p?' on':''}" data-part="${q}" role="tab" aria-selected="${q===p}"><i style="background-image:url(${swatch(fab(S.fabrics[q]))})"></i>${label(q,true)}</button>`).join('')}
+      <button type="button" class="m-tab m-zoom" data-zoom aria-label="Рассмотреть ткань ${fabLabel(f)} крупно">Вблизи</button></div>
+    <div class="m-strip" data-part="${p}">${list.map(x=>`<button type="button" class="m-sw${x.id===f.id?' on':''}" data-fab="${x.id}" aria-pressed="${x.id===f.id}"><i style="background-image:url(${swatch(x)})"></i>${x.name.replace('№ ','')}</button>`).join('')}</div>`;
+  const strip=document.querySelector('.m-strip'), on=strip.querySelector('.on');
+  if (keep!=null) strip.scrollLeft=keep;
+  if (on && (keep==null || on.offsetLeft<strip.scrollLeft || on.offsetLeft+on.offsetWidth>strip.scrollLeft+strip.clientWidth)) strip.scrollLeft=on.offsetLeft-(strip.clientWidth-on.offsetWidth)/2;
+  fitStage();
+}
+// высоты нижней панели и дока — в CSS-переменные, чтобы штора заняла всё оставшееся место
+function fitStage(){
+  const r=document.documentElement.style, bar=$('bar'), dock=$('m-dock');
+  if (bar.offsetHeight) r.setProperty('--bar-h', bar.offsetHeight+'px');
+  if (dock.offsetHeight) r.setProperty('--dock-h', dock.offsetHeight+16+'px');
+}
+let toastT;
+function toast(text, hint){
+  const t=$('m-toast'); t.textContent=text; t.classList.toggle('hint',!!hint); t.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'), hint?3200:1100);
+}
+// свайпы по шторе на телефоне: ← → другой дизайн, ↓ следующий цвет основы, ↑ следующий цвет канта
+function stepDesign(n){
+  const i=DESIGNS.findIndex(x=>x.id===S.design), d=DESIGNS[(i+n+DESIGNS.length)%DESIGNS.length];
+  const mine={ main:S.fabrics.main, kant1:S.fabrics.kant1 };
+  S.design=d.id; resetWidths(); S.part='main'; Object.assign(S.fabrics, d.fabrics);
+  if (S.custom) Object.assign(S.fabrics, mine);  // клиент уже выбирал ткани — сравниваем дизайны в его цветах
+  renderFabricsView(); toast(`№ ${d.code} · ${d.name}`);
+}
+function stepFabric(part, n){
+  const d=design(S.design), f=fab(S.fabrics[part]), list=FABRICS.filter(x=>x.col===f.col), i=list.findIndex(x=>x.id===f.id);
+  S.fabrics[part]=list[(i+n+list.length)%list.length].id; S.custom=true; S.part=part; delete S.browse[part];
+  linkParts(d); renderParts(); renderEditor(); redraw(); updateNote();
+  toast(`${label(part,true)}: ${fab(S.fabrics[part]).name}`);
+}
+(()=>{
+  let x0=null, y0=0;
+  const cv=$('cv');
+  cv.addEventListener('touchstart', e=>{ if (e.touches.length!==1) { x0=null; return; } x0=e.touches[0].clientX; y0=e.touches[0].clientY; }, { passive:true });
+  cv.addEventListener('touchend', e=>{
+    if (x0==null || innerWidth>560) return;
+    const dx=e.changedTouches[0].clientX-x0, dy=e.changedTouches[0].clientY-y0; x0=null;
+    if (Math.abs(dx)>40 && Math.abs(dx)>Math.abs(dy)*1.2) stepDesign(dx<0?1:-1);
+    else if (Math.abs(dy)>40 && Math.abs(dy)>Math.abs(dx)*1.2){
+      const parts=shownParts(design(S.design));
+      if (dy>0) stepFabric('main', 1);
+      else if (parts[1]) stepFabric(parts[1], 1);
+      else toast('В этом дизайне одна ткань');
+    }
+  });
+})();
+function swipeHint(){
+  if (innerWidth>560) return;
+  try { if (localStorage.getItem('swipeHint')) return; localStorage.setItem('swipeHint','1'); } catch(_){}
+  setTimeout(()=>toast('Листайте штору пальцем:\n← → другой дизайн\n↓ цвет основы · ↑ цвет канта', true), 400);
 }
 function syncView(){
   const d=design(S.design), photo=photoMode(d);
@@ -836,7 +922,7 @@ function show(){
   $('view-designs').hidden = r!=='designs'; $('view-fabrics').hidden = r!=='fabrics'; $('bar').hidden = r!=='fabrics';
   $('tab-designs').classList.toggle('on',r==='designs'); $('tab-fabrics').classList.toggle('on',r==='fabrics');
   $('tab-designs').toggleAttribute('aria-current',r==='designs'); $('tab-fabrics').toggleAttribute('aria-current',r==='fabrics');
-  if (r==='designs'){ renderFilters(); renderGrid(); } else renderFabricsView();
+  if (r==='designs'){ renderFilters(); renderGrid(); } else { renderFabricsView(); swipeHint(); }
   window.scrollTo(0,0);
 }
 
@@ -846,7 +932,7 @@ document.addEventListener('click', e=>{
   const ds=t.dataset;
   if (ds.design){ if (S.design!==ds.design){ S.design=ds.design; resetWidths(); S.part='main'; Object.assign(S.fabrics, design(S.design).fabrics); } location.hash='fabrics'; return; }
   if (ds.part){ S.part=ds.part; renderParts(); renderEditor(); return; }
-  if (ds.fab){ S.fabrics[S.part]=ds.fab; delete S.browse[S.part]; linkParts(design(S.design)); renderParts(); renderEditor(); redraw(); updateNote(); return; }
+  if (ds.fab){ S.custom=true; S.fabrics[S.part]=ds.fab; delete S.browse[S.part]; linkParts(design(S.design)); renderParts(); renderEditor(); redraw(); updateNote(); return; }
   if (ds.same!==undefined){ S.fabrics[S.part]=S.fabrics.main; delete S.browse[S.part]; linkParts(design(S.design)); renderParts(); renderEditor(); redraw(); updateNote(); return; }
   if (ds.w){ setWidth(S.widths[S.part]+Number(ds.w)); return; }
   if (ds.view){ S.view=ds.view; syncView(); redraw(); return; }
@@ -859,7 +945,7 @@ document.addEventListener('click', e=>{
   if (ds.lbclose!==undefined){ closeWork(); return; }
   if (ds.zoom!==undefined){ openFab(); return; }
   if (ds.fview){ lbView=ds.fview; showWork(); return; }
-  if (ds.lbpick){ S.fabrics[S.part]=ds.lbpick; delete S.browse[S.part]; linkParts(design(S.design)); renderParts(); renderEditor(); redraw(); updateNote(); showWork(); return; }
+  if (ds.lbpick){ S.custom=true; S.fabrics[S.part]=ds.lbpick; delete S.browse[S.part]; linkParts(design(S.design)); renderParts(); renderEditor(); redraw(); updateNote(); showWork(); return; }
 });
 document.addEventListener('change', e=>{
   const t=e.target;
@@ -956,6 +1042,7 @@ $('lb').addEventListener('touchend', e=>{ if (lbX==null) return; const dx=e.chan
 
 /* ---------- Запуск ---------- */
 window.addEventListener('hashchange', show);
+window.addEventListener('resize', ()=>{ if (route()==='fabrics') fitStage(); });
 show();
 // перерисовка только при смене ширины страницы или размера превью — не на каждое изменение высоты страницы
 if ('ResizeObserver' in window){ let raf, lastW=0, lastCv='';
