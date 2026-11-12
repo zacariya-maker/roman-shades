@@ -424,39 +424,40 @@ const PHOTOS = {
   '16': { base:'photos/d16', link:{}, labels:{ kant1:'Кант' } },
 };
 // карты в WebP (tools/photo_web.py): маленькие -thumb для каталога грузятся сразу,
-// большие подгружаются в фоне по очереди; если дизайн открыли раньше — штора проявляется, когда большие готовы
+// большие — только для открытого дизайна (держим в памяти один набор: телефоны закрывают страницу при нехватке памяти);
+// пока большие грузятся, штора не показывается и затем плавно проявляется
 const photoImgs = {};
 const photoLayers = p => ['main','kant',...(p.parts?.[2]?['extra']:[])];
 const loaded = im => im && im.complete && im.naturalWidth > 0;
 function photoSet(code, thumb){
   const p=PHOTOS[code], key=code+(thumb?'-thumb':'');
+  if (!thumb) Object.keys(photoImgs).forEach(k=>{ if (k!==key && !k.endsWith('-thumb')){ Object.values(photoImgs[k]).forEach(im=>{ im.onload=null; im.src=''; }); delete photoImgs[k]; } });
   if (!photoImgs[key]) photoImgs[key]=Object.fromEntries(photoLayers(p).map(k=>{
     const im=new Image(); im.onload=()=>redraw(); im.src=`${p.base.replace('photos/','photos/web/')}-${k}${thumb?'-thumb':''}.webp`; return [k,im]; }));
   return photoImgs[key];
 }
 Object.keys(PHOTOS).forEach(code=>photoSet(code, true));
-function preloadFull(){
-  const codes=Object.keys(PHOTOS);
-  const next=()=>{ const code=codes.shift(); if (!code) return;
-    Promise.all(Object.values(photoSet(code, false)).map(im=>im.decode ? im.decode().catch(()=>{}) : null)).then(next); };
-  next();
-}
-window.addEventListener('load', ()=>setTimeout(preloadFull, 300));
 document.addEventListener('pointerdown', e=>{ const b=e.target.closest('[data-design]'), d=b && design(b.dataset.design); if (d && photoOf(d)) photoSet(d.code, false); });
 const photoOf = d => PHOTOS[d.code];
 const photoMode = d => !!photoOf(d) && S.photo;
 const shownParts = d => photoMode(d) ? (photoOf(d).parts || ['main','kant1']) : partsOf(d);
 function linkParts(d){ const p=photoOf(d); if (!p || !S.photo) return; Object.entries(p.link).forEach(([from,to])=>to.forEach(t=>{ S.fabrics[t]=S.fabrics[from]; })); }
+// два общих холста для перекраски слоёв: создаём один раз, а не на каждую перерисовку
+const TINT=[document.createElement('canvas'), document.createElement('canvas')];
 function drawPhoto(cv, d, fabrics, thumb){
   const W=cv.clientWidth, H=cv.clientHeight; if(!W||!H) return;
-  const dpr=Math.min(2, window.devicePixelRatio||1);
+  const dpr=Math.min(2, window.devicePixelRatio||1), T=tokens();
+  const ready = set => Object.values(set).every(loaded);
+  const set = photoSet(d.code, !!thumb), ok=ready(set);
+  // ничего не изменилось — не перерисовываем (на телефоне перерисовки идут часто: адресная строка, шрифты)
+  const key=[d.code,W,H,dpr,T.wall,ok,...(photoOf(d).parts||['main','kant1']).map(p=>fabrics[p])].join('|');
+  if (cv._key===key && !cv._t0) return;
+  cv._key=key;
   cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr);
   const c=cv.getContext('2d'); c.setTransform(dpr,0,0,dpr,0,0);
-  const T=tokens(), g=c.createLinearGradient(0,0,0,H); g.addColorStop(0,T.wall); g.addColorStop(1,T.wall2);
+  const g=c.createLinearGradient(0,0,0,H); g.addColorStop(0,T.wall); g.addColorStop(1,T.wall2);
   c.fillStyle=g; c.fillRect(0,0,W,H);
-  const ready = set => Object.values(set).every(loaded);
-  const set = photoSet(d.code, !!thumb);
-  if (!ready(set)){ cv._wait=true; return; }
+  if (!ok){ cv._wait=true; return; }
   let fade=1;  // плавное появление, если большие карты пришли уже после открытия
   if (cv._wait){ cv._wait=false; cv._t0=performance.now(); }
   if (cv._t0){ fade=Math.min(1,(performance.now()-cv._t0)/300); if (fade<1) requestAnimationFrame(redraw); else cv._t0=0; }
@@ -465,10 +466,10 @@ function drawPhoto(cv, d, fabrics, thumb){
   const dw=im.naturalWidth*s, dh=im.naturalHeight*s, dx=(W-dw)/2, dy=(H-dh)/2;
   // слой ткани: светотень × цвет ткани × 255/200, затем возвращаем прозрачность слоя
   const tint = (img, color) => {
-    const n=document.createElement('canvas'); n.width=Math.round(dw*dpr); n.height=Math.round(dh*dpr);
+    const [n, copy]=TINT; n.width=copy.width=Math.round(dw*dpr); n.height=copy.height=Math.round(dh*dpr);
     const x=n.getContext('2d'); x.drawImage(img,0,0,n.width,n.height);
     x.globalCompositeOperation='multiply'; x.fillStyle=color; x.fillRect(0,0,n.width,n.height);
-    const copy=document.createElement('canvas'); copy.width=n.width; copy.height=n.height; copy.getContext('2d').drawImage(n,0,0);
+    copy.getContext('2d').drawImage(n,0,0);
     x.globalCompositeOperation='lighter'; x.globalAlpha=.275; x.drawImage(copy,0,0); x.globalAlpha=1;
     x.globalCompositeOperation='destination-in'; x.drawImage(img,0,0,n.width,n.height);
     return n;
@@ -942,7 +943,11 @@ $('lb').addEventListener('touchend', e=>{ if (lbX==null) return; const dx=e.chan
 /* ---------- Запуск ---------- */
 window.addEventListener('hashchange', show);
 show();
-if ('ResizeObserver' in window){ let raf; new ResizeObserver(()=>{ cancelAnimationFrame(raf); raf=requestAnimationFrame(redraw); }).observe(document.body); }
+// перерисовка только при смене ширины страницы или размера превью — не на каждое изменение высоты страницы
+if ('ResizeObserver' in window){ let raf, lastW=0, lastCv='';
+  new ResizeObserver(()=>{ const w=document.body.clientWidth, cv=$('cv'), sz=cv?cv.clientWidth+'x'+cv.clientHeight:'';
+    if (w===lastW && sz===lastCv) return; lastW=w; lastCv=sz; cancelAnimationFrame(raf); raf=requestAnimationFrame(redraw); })
+    .observe(document.body); }
 matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', redraw);
 new MutationObserver(redraw).observe(document.documentElement, { attributes:true, attributeFilter:['data-theme'] });
 </script>
