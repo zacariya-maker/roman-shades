@@ -103,6 +103,7 @@ h3{font-size:15px;font-weight:600;margin:0}
 /* ---------- Телефон: конструктор на одном экране ----------
    штора на всю свободную высоту, под ней вкладки частей и строка тканей; свайпы по шторе — дизайн и цвета */
 .m-dock,.m-toast{display:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media (max-width:560px){
   .product{padding-top:0}
   .stage{position:relative;top:auto;padding-block:8px 4px}
@@ -112,15 +113,25 @@ h3{font-size:15px;font-weight:600;margin:0}
   .m-dock{display:flex;flex-direction:column;gap:8px;min-width:0}
   .m-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
   .m-tabs::-webkit-scrollbar,.m-strip::-webkit-scrollbar{display:none}
-  .m-tab{flex:none;display:flex;align-items:center;gap:6px;height:34px;padding:0 12px 0 4px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--fg);font:inherit;font-size:13px;font-weight:500;white-space:nowrap;cursor:pointer}
-  .m-tab i{width:26px;height:26px;border-radius:50%;background:center/cover no-repeat;border:1px solid var(--line)}
+  .m-tab{flex:none;display:flex;align-items:center;gap:6px;padding:0 12px 0 4px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--fg);font:inherit;font-size:13px;font-weight:500;white-space:nowrap;cursor:pointer}
+  .m-tab i{border-radius:50%;background:center/cover no-repeat;border:1px solid var(--line)}
   .m-tab.on{border-color:var(--fg);box-shadow:inset 0 0 0 1px var(--fg)}
   .m-zoom{margin-left:auto;padding:0 12px}
-  .m-strip{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding:2px 2px 4px;scroll-snap-type:x proximity}
-  .m-sw{flex:none;display:flex;flex-direction:column;align-items:center;gap:3px;padding:0;border:0;background:none;color:var(--muted);font:inherit;font-size:11px;cursor:pointer;scroll-snap-align:center}
-  .m-sw i{width:48px;height:48px;border-radius:50%;background:center/cover no-repeat;border:1px solid var(--line)}
-  .m-sw.on{color:var(--fg);font-weight:600}
-  .m-sw.on i{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--fg)}
+  .m-row{display:flex;align-items:center;gap:8px;min-width:0}
+  .m-col{flex:none;position:relative}
+  .m-col select{appearance:none;-webkit-appearance:none;height:30px;max-width:112px;padding:0 24px 0 10px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--fg);font:inherit;font-size:12px;font-weight:500;text-overflow:ellipsis}
+  .m-col::after{content:'';position:absolute;right:10px;top:12px;width:5px;height:5px;border-right:1.5px solid var(--fg);border-bottom:1.5px solid var(--fg);transform:rotate(45deg);pointer-events:none}
+  .m-strip{flex:1;min-width:0;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:4px 4px 2px;scroll-snap-type:x proximity}
+  .m-sw{flex:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:0;border:0;background:none;color:var(--muted);font:inherit;font-size:9.5px;line-height:1;cursor:pointer;scroll-snap-align:center}
+  .m-sw i{width:28px;height:28px;border-radius:50%;background:center/cover no-repeat;border:1px solid var(--line)}
+  .m-sw.on{color:var(--fg);font-weight:700}
+  .m-sw.on i{box-shadow:0 0 0 1.5px var(--bg),0 0 0 3px var(--fg)}
+  .m-tab{height:30px;font-size:12.5px}
+  .m-tab i{width:22px;height:22px}
+  .bar-in{padding-block:8px;gap:8px}
+  .bar .btn{height:38px;padding:0 14px;font-size:13px}
+  .bar-sum b{font-size:13px}
+  .bar-sum span{font-size:11px}
   .m-toast{display:block;position:absolute;left:50%;top:52px;transform:translate(-50%,-6px);margin:0;padding:7px 14px;border-radius:999px;background:rgba(30,20,16,.78);color:#fff;font-size:13px;white-space:nowrap;max-width:calc(100% - 24px);overflow:hidden;text-overflow:ellipsis;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;backdrop-filter:blur(6px)}
   .m-toast.show{opacity:1;transform:translate(-50%,0)}
   .m-toast.hint{white-space:pre-line;text-align:center;border-radius:14px;width:max-content;line-height:1.45}
@@ -338,7 +349,8 @@ const KLOT = {
   31:['#2D1F1B',11.5],
 };
 const MIRROR = new Set(['klot-3']); // фото без бесшовной обработки
-const COLLECTIONS = [ { id:'klot', name:'Клот', dir:'fabrics/klot', items:Object.entries(KLOT) } ];
+// коллекции тканей; maker — производитель (группа в выпадающем списке «Каталог тканей»)
+const COLLECTIONS = [ { id:'klot', name:'Клот', maker:'', dir:'fabrics/klot', items:Object.entries(KLOT) } ];
 const FABRICS = COLLECTIONS.flatMap(c=>c.items.map(([n,[color,cm]])=>({ id:`${c.id}-${n}`, col:c.id, colName:c.name, name:`№ ${n}`, color, cm, img:`${c.dir}/${n}.jpg`, zoom:`${c.dir}/zoom/${n}.jpg`, orig:`${c.dir}/orig/${n}.jpg` })));
 const fab = id => FABRICS.find(f=>f.id===id) || FABRICS[0];
 const fabLabel = f => `${f.colName} · ${f.name}`;
@@ -837,13 +849,20 @@ function renderEditor(){
     ${p!=='main'?`<button type="button" class="link" data-same>Взять основную ткань</button>`:''}`;
   renderDock();
 }
+// список коллекций для выпадающего меню: группы по производителю, если он указан
+function colOptions(cur){
+  const opt=c=>`<option value="${c.id}"${c.id===cur?' selected':''}>${c.name}</option>`;
+  const makers=[...new Set(COLLECTIONS.map(c=>c.maker))];
+  return makers.map(m=>m ? `<optgroup label="${m}">${COLLECTIONS.filter(c=>c.maker===m).map(opt).join('')}</optgroup>` : COLLECTIONS.filter(c=>!c.maker).map(opt).join('')).join('');
+}
 // телефон: вкладки частей и одна строка тканей под шторой
 function renderDock(){
   const d=design(S.design), p=S.part, f=fab(S.fabrics[p]), old=document.querySelector('.m-strip'), keep=old && old.dataset.part===p ? old.scrollLeft : null;
   const list=FABRICS.filter(x=>x.col===(S.browse[p] || f.col));
   $('m-dock').innerHTML = `<div class="m-tabs" role="tablist" aria-label="Части шторы">${shownParts(d).map(q=>`<button type="button" class="m-tab${q===p?' on':''}" data-part="${q}" role="tab" aria-selected="${q===p}"><i style="background-image:url(${swatch(fab(S.fabrics[q]))})"></i>${label(q,true)}</button>`).join('')}
       <button type="button" class="m-tab m-zoom" data-zoom aria-label="Рассмотреть ткань ${fabLabel(f)} крупно">Вблизи</button></div>
-    <div class="m-strip" data-part="${p}">${list.map(x=>`<button type="button" class="m-sw${x.id===f.id?' on':''}" data-fab="${x.id}" aria-pressed="${x.id===f.id}"><i style="background-image:url(${swatch(x)})"></i>${x.name.replace('№ ','')}</button>`).join('')}</div>`;
+    <div class="m-row"><label class="m-col"><span class="sr">Каталог тканей</span><select name="col" aria-label="Каталог тканей">${colOptions(S.browse[p] || f.col)}</select></label>
+    <div class="m-strip" data-part="${p}">${list.map(x=>`<button type="button" class="m-sw${x.id===f.id?' on':''}" data-fab="${x.id}" aria-pressed="${x.id===f.id}"><i style="background-image:url(${swatch(x)})"></i>${x.name.replace('№ ','')}</button>`).join('')}</div></div>`;
   const strip=document.querySelector('.m-strip'), on=strip.querySelector('.on');
   if (keep!=null) strip.scrollLeft=keep;
   if (on && (keep==null || on.offsetLeft<strip.scrollLeft || on.offsetLeft+on.offsetWidth>strip.scrollLeft+strip.clientWidth)) strip.scrollLeft=on.offsetLeft-(strip.clientWidth-on.offsetWidth)/2;
@@ -853,7 +872,7 @@ function renderDock(){
 function fitStage(){
   const r=document.documentElement.style, bar=$('bar'), dock=$('m-dock');
   if (bar.offsetHeight) r.setProperty('--bar-h', bar.offsetHeight+'px');
-  if (dock.offsetHeight) r.setProperty('--dock-h', dock.offsetHeight+16+'px');
+  if (dock.offsetHeight) r.setProperty('--dock-h', dock.offsetHeight+26+'px');
 }
 let toastT;
 function toast(text, hint){
