@@ -86,9 +86,17 @@ h3{font-size:15px;font-weight:600;margin:0}
 .stage canvas{display:block;width:100%;height:clamp(230px,40vh,420px);border-radius:18px}
 .seg{position:absolute;top:18px;right:10px;display:flex;background:rgba(255,255,255,.75);border-radius:999px;padding:3px;backdrop-filter:blur(6px)}
 .seg.left{right:auto;left:10px}
-@media (max-width:560px){.seg.left{top:auto;bottom:18px}}
 .seg button{border:0;background:none;padding:6px 12px;border-radius:999px;font-size:13px;cursor:pointer;color:#3A211A}
 .seg button.on{background:#3A211A;color:#FFFFFF}
+/* телефон: компактные кнопки — «Фото/Схема» в верхней полосе превью, положение шторы — в нижней;
+   штора рисуется между ними (SEG_BAND в draw/drawPhoto) */
+@media (max-width:560px){
+  .seg{top:14px;right:8px;padding:2px}
+  .seg.left{left:8px}
+  #seg-view{top:auto;bottom:10px;right:50%;transform:translateX(50%)}
+  .seg button{padding:5px 9px;font-size:11.5px;min-height:26px;white-space:nowrap}
+  .stage .light-note{bottom:50px;left:8px;right:8px;font-size:11px;padding:6px 10px}
+}
 .light-note{position:absolute;left:12px;right:12px;bottom:18px;margin:0;padding:7px 12px;border-radius:12px;background:rgba(255,255,255,.82);color:#3A211A;font-size:12px;line-height:1.35;text-align:center;backdrop-filter:blur(6px)}
 .panel{min-width:0;display:flex;flex-direction:column;gap:22px}
 @media (min-width:900px){
@@ -444,6 +452,8 @@ const shownParts = d => photoMode(d) ? (photoOf(d).parts || ['main','kant1']) : 
 function linkParts(d){ const p=photoOf(d); if (!p || !S.photo) return; Object.entries(p.link).forEach(([from,to])=>to.forEach(t=>{ S.fabrics[t]=S.fabrics[from]; })); }
 // два общих холста для перекраски слоёв: создаём один раз, а не на каждую перерисовку
 const TINT=[document.createElement('canvas'), document.createElement('canvas')];
+// высота верхней полосы под кнопками превью на телефоне — штору в неё не рисуем
+const SEG_BAND = (W, thumb) => !thumb && innerWidth<=560 ? 40 : 0;
 function drawPhoto(cv, d, fabrics, thumb){
   const W=cv.clientWidth, H=cv.clientHeight; if(!W||!H) return;
   const dpr=Math.min(2, window.devicePixelRatio||1), T=tokens();
@@ -462,8 +472,9 @@ function drawPhoto(cv, d, fabrics, thumb){
   if (cv._wait){ cv._wait=false; cv._t0=performance.now(); }
   if (cv._t0){ fade=Math.min(1,(performance.now()-cv._t0)/300); if (fade<1) requestAnimationFrame(redraw); else cv._t0=0; }
   const im=set.main, ik=set.kant;
-  const pad=thumb?.06:.07, s=Math.min(W*(1-2*pad)/im.naturalWidth, H*(1-2*pad)/im.naturalHeight);
-  const dw=im.naturalWidth*s, dh=im.naturalHeight*s, dx=(W-dw)/2, dy=(H-dh)/2;
+  const band=SEG_BAND(W,thumb), Ha=H-band;
+  const pad=thumb?.06:.07, s=Math.min(W*(1-2*pad)/im.naturalWidth, Ha*(1-2*pad)/im.naturalHeight);
+  const dw=im.naturalWidth*s, dh=im.naturalHeight*s, dx=(W-dw)/2, dy=band+(Ha-dh)/2;
   // слой ткани: светотень × цвет ткани × 255/200, затем возвращаем прозрачность слоя
   const tint = (img, color) => {
     const [n, copy]=TINT; n.width=copy.width=Math.round(dw*dpr); n.height=copy.height=Math.round(dh*dpr);
@@ -530,8 +541,9 @@ function draw(cv, d, fabrics, widths, view, thumb){
   c.fillStyle=g; c.fillRect(0,0,W,H);
 
   // окно 140 × 210
-  const r=140/210, maxW=W*(thumb?.62:.54), maxH=H*.72;
-  const ww=Math.min(maxW,maxH*r), wh=ww/r, wx=(W-ww)/2, wy=H*.12;
+  const band=SEG_BAND(W,thumb), Ha=H-band*2;  // в схеме кнопки и сверху, и снизу
+  const r=140/210, maxW=W*(thumb?.62:.54), maxH=Ha*.72;
+  const ww=Math.min(maxW,maxH*r), wh=ww/r, wx=(W-ww)/2, wy=band+Ha*.12;
   const fr=Math.max(3,Math.min(10,ww*.035));
   c.fillStyle=T.frame; c.fillRect(wx-fr,wy-fr,ww+2*fr,wh+2*fr);
   g=c.createLinearGradient(0,wy,0,wy+wh); g.addColorStop(0,T.glass1); g.addColorStop(1,T.glass2);
