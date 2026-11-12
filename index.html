@@ -86,6 +86,25 @@ h3{font-size:15px;font-weight:600;margin:0}
 .stage canvas{display:block;width:100%;height:clamp(230px,40vh,420px);border-radius:18px}
 .seg{position:absolute;top:18px;right:10px;display:flex;background:rgba(255,255,255,.75);border-radius:999px;padding:3px;backdrop-filter:blur(6px)}
 .seg.left{right:auto;left:10px}
+#seg-view{top:auto;bottom:10px;right:50%;transform:translateX(50%)}
+.stage .light-note{bottom:52px}
+.size-chip{position:absolute;top:18px;right:10px;display:flex;align-items:center;gap:6px;height:32px;padding:0 12px;border:0;border-radius:999px;background:rgba(255,255,255,.75);color:#3A211A;font:inherit;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;cursor:pointer;backdrop-filter:blur(6px)}
+.size-chip.empty{background:#3A211A;color:#fff}
+.size-chip svg{width:14px;height:14px;flex:none}
+@media (max-width:560px){.size-chip{top:14px;right:8px;height:30px;padding:0 10px;font-size:11.5px}}
+.bar-sum{border:0;background:none;padding:0;text-align:left;color:var(--fg);font:inherit;cursor:pointer}
+.dims{display:flex;flex-direction:column;gap:14px}
+.dim{display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px 12px}
+.dim label{font-size:15px;font-weight:500}
+.dim small{grid-column:1;font-size:12px;color:var(--muted)}
+.dim-in{grid-row:1 / span 2;grid-column:2;display:flex;align-items:center;gap:6px}
+.dim-in button{width:40px;height:40px;border:1px solid var(--line);border-radius:50%;background:var(--bg);color:var(--fg);font-size:20px;line-height:1;cursor:pointer}
+.dim-in input{width:84px;height:44px;border:1px solid var(--line);border-radius:12px;background:var(--soft);color:var(--fg);font:inherit;font-size:20px;font-weight:600;text-align:center;font-variant-numeric:tabular-nums}
+.dim-in input:focus{outline:2px solid var(--fg);outline-offset:1px}
+.dim-in span{font-size:13px;color:var(--muted);width:20px}
+.dim-total{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:14px 16px;border-radius:var(--r);background:var(--soft);margin:0}
+.dim-total b{font-size:22px;font-variant-numeric:tabular-nums}
+.dim-total span{font-size:13px;color:var(--muted)}
 .seg button{border:0;background:none;padding:6px 12px;border-radius:999px;font-size:13px;cursor:pointer;color:#3A211A}
 .seg button.on{background:#3A211A;color:#FFFFFF}
 /* телефон: компактные кнопки — «Фото/Схема» в верхней полосе превью, положение шторы — в нижней;
@@ -93,7 +112,6 @@ h3{font-size:15px;font-weight:600;margin:0}
 @media (max-width:560px){
   .seg{top:14px;right:8px;padding:2px}
   .seg.left{left:8px}
-  #seg-view{top:auto;bottom:10px;right:50%;transform:translateX(50%)}
   .seg button{padding:5px 9px;font-size:11.5px;min-height:26px;white-space:nowrap}
   .stage canvas{height:clamp(300px,56vh,560px)}
   .stage .light-note{bottom:50px;left:8px;right:8px;font-size:11px;padding:6px 10px}
@@ -276,6 +294,7 @@ pre.msg{white-space:pre-wrap;word-break:break-word;background:var(--soft);border
           <button type="button" data-view="down">Опущена</button>
           <button type="button" data-view="light">На просвет</button>
         </div>
+        <button type="button" class="size-chip" id="size-chip" data-sizes></button>
         <p class="m-toast" id="m-toast" aria-live="polite"></p>
         <p class="light-note" id="light-note" hidden>Светопропускаемость около 50%: ткань мягко рассеивает дневной свет, но не затемняет комнату полностью. Это не блэкаут.</p>
       </div>
@@ -293,7 +312,7 @@ pre.msg{white-space:pre-wrap;word-break:break-word;background:var(--soft);border
 <div class="bar" id="bar" hidden>
   <div class="wrap bar-in">
     <button class="btn ghost" id="bar-back">Дизайны</button>
-    <div class="bar-sum"><b id="bar-title"></b><span id="bar-note"></span></div>
+    <button type="button" class="bar-sum" id="bar-sum" data-sizes><b id="bar-title"></b><span id="bar-note"></span></button>
     <button class="btn" id="bar-send">Отправить дизайн</button>
   </div>
 </div>
@@ -414,6 +433,7 @@ const FILTERS = [
 /* ---------- Состояние ---------- */
 const S = {
   design:'d1', filter:'all', part:'main', view:'raised', photo:true,
+  size:null,  // { w, h, chain } в см; null — клиент ещё не указал размер, цену не показываем
   fabrics:{ main:Gr, kant1:Be, kant2:Be, hem:Be, bows:Be, ruffle:Be, pompons:Wh, tassel:Be },
   widths:{}, browse:{},
 };
@@ -954,6 +974,8 @@ document.addEventListener('click', e=>{
   if (ds.view){ S.view=ds.view; syncView(); redraw(); return; }
   if (ds.mode){ S.photo=ds.mode==='photo'; renderFabricsView(); return; }
   if (t.id==='bar-back'){ location.hash='designs'; return; }
+  if (ds.sizes!==undefined){ openSizes(); return; }
+  if (ds.dim){ const i=$('d-'+ds.dim); i.value=(parseInt(i.value,10)||0)+Number(ds.step); readSizes(true, ds.dim); return; }
   if (t.id==='bar-send'){ openOrder(); return; }
   if (ds.close!==undefined){ closeOrder(); return; }
   if (ds.work){ openWork(Number(ds.work)); return; }
@@ -969,13 +991,82 @@ document.addEventListener('change', e=>{
   if (t.name==='col'){ S.browse[S.part]=t.value; renderEditor(); }
 });
 document.addEventListener('input', e=>{ if (e.target.id==='w-range') setWidth(Number(e.target.value)); });
-function updateNote(){ const parts=shownParts(design(S.design)); $('bar-note').textContent = parts.map(p=>`${label(p,true)}: ${fab(S.fabrics[p]).name.toLowerCase()}`).join(' · '); }
+function updateNote(){
+  const d=design(S.design), z=S.size;
+  $('bar-title').textContent = z ? `≈ ${rub(price())}` : 'Узнать цену';
+  $('bar-note').textContent = z ? `${z.w} × ${z.h} см · № ${d.code} ${d.name}` : 'укажите размер';
+  $('size-chip').classList.toggle('empty', !z);
+  $('size-chip').innerHTML = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 5V2h3M14 5V2h-3M2 11v3h3M14 11v3h-3"/></svg>${z ? `${z.w} × ${z.h} см` : 'Размер'}`;
+  $('size-chip').setAttribute('aria-label', z ? `Размер шторы ${z.w} на ${z.h} см, изменить` : 'Указать размер шторы');
+}
+
+/* ---------- Размеры и расчёт ----------
+   Клиент видит только итог. Цены — здесь; позже их будет менять админка. */
+const PRICE = {
+  cornice: 3500,        // ₽ за метр ширины: карниз с механизмом
+  work: 2500,           // ₽ за м² готовой шторы: пошив
+  allowance: .2,        // м припуска с каждой стороны
+  roll: 3,              // м — высота рулона: ткань идёт «на ширину», пока штора с припусками ниже рулона
+  trim: .5,             // м ткани на канты и отделку — на каждую ткань, кроме основы
+  fabric: { klot: 3000 },  // ₽ за погонный метр по коллекциям
+  decor: { pompons: 0, tassel: 0 },  // помпоны, кисти, бусины… — ₽ за метр ширины, цены добавим
+  round: 100,           // округляем только итог, вверх
+};
+const LIMITS = { w:[40,300], h:[100,600], chain:[30,600] };
+const rub = n => n.toLocaleString('ru-RU')+' ₽';
+const chainOf = z => z.chain ?? Math.round(z.h*2/3/5)*5;  // по умолчанию цепь ≈ ⅔ высоты
+function price(){
+  const d=design(S.design), z=S.size; if (!z) return 0;
+  const w=z.w/100, h=z.h/100, a=PRICE.allowance*2, cost=id=>PRICE.fabric[fab(id).col]||0;
+  const mainM = h+a<=PRICE.roll ? w+a : (h+a)*Math.ceil((w+a)/PRICE.roll);   // штора выше рулона — кроим по высоте
+  const trims = new Set(partsOf(d).filter(p=>p!=='main' && !(p in PRICE.decor)).map(p=>S.fabrics[p]));
+  let sum = mainM*cost(S.fabrics.main) + [...trims].reduce((t,id)=>t+PRICE.trim*cost(id),0)
+          + w*PRICE.cornice + w*h*PRICE.work
+          + partsOf(d).filter(p=>p in PRICE.decor).reduce((t,p)=>t+w*PRICE.decor[p],0);
+  return Math.ceil(sum/PRICE.round)*PRICE.round;
+}
+function openSizes(){
+  lastFocus=document.activeElement;
+  const z=S.size || { w:150, h:180, chain:null };
+  const row=(k,name,val,hint)=>`<div class="dim"><label for="d-${k}">${name}</label>
+      <div class="dim-in"><button type="button" data-dim="${k}" data-step="-5" aria-label="${name}: меньше на 5 см">−</button><input id="d-${k}" type="text" inputmode="numeric" pattern="[0-9]*" value="${val}" aria-describedby="h-${k}"><button type="button" data-dim="${k}" data-step="5" aria-label="${name}: больше на 5 см">+</button><span>см</span></div>
+      <small id="h-${k}">${hint}</small></div>`;
+  $('sheet').innerHTML = `<div class="sheet-head"><div><p class="eyebrow">Ваша штора</p><h2 id="order-title">Размер</h2></div><button class="x" data-close aria-label="Закрыть">✕</button></div>
+    <div class="dims">
+      ${row('w','Ширина',z.w,`по карнизу, от ${LIMITS.w[0]} до ${LIMITS.w[1]} см`)}
+      ${row('h','Высота',z.h,`от ${LIMITS.h[0]} до ${LIMITS.h[1]} см`)}
+      ${row('chain','Длина цепи',chainOf(z),'обычно ⅔ высоты, сбоку от шторы')}
+    </div>
+    <p class="dim-total"><span>Предварительная стоимость<br>с карнизом и пошивом</span><b id="d-total"></b></p>
+    <button class="btn" type="button" data-close>Готово</button>
+    <p class="note">Точную сумму менеджер подтвердит после замера.</p>`;
+  S.size=z; readSizes(false);
+  $('order').hidden=false; document.body.style.overflow='hidden'; $('d-w').focus(); $('d-w').select();
+}
+// читаем поля; clamp=true — подгоняем под допустимые размеры (при выходе из поля и кнопках).
+// Цепь считается сама (⅔ высоты), пока клиент не изменил её поле (src === 'chain')
+function readSizes(clamp, src){
+  const z=S.size, num=k=>parseInt($('d-'+k).value.replace(/\D/g,''),10);
+  ['w','h','chain'].forEach(k=>{ if (k==='chain' && src!=='chain') return; let v=num(k); if (isNaN(v)) return;
+    if (clamp){ v=Math.min(LIMITS[k][1],Math.max(LIMITS[k][0],v)); $('d-'+k).value=v; }
+    z[k]=v; });
+  if (z.chain==null) $('d-chain').value=chainOf(z);
+  const ok=['w','h'].every(k=>z[k]>=LIMITS[k][0] && z[k]<=LIMITS[k][1]);
+  $('d-total').textContent = ok ? rub(price()) : '—';
+  updateNote();
+}
+document.addEventListener('input', e=>{ const m=e.target.id.match(/^d-(w|h|chain)$/); if (m) readSizes(false, m[1]); });
+document.addEventListener('focusout', e=>{ const m=e.target.id.match(/^d-(w|h|chain)$/); if (m) readSizes(true, m[1]); });
 
 /* ---------- Отправка дизайна ---------- */
 let lastFocus=null, msg='';
 function summaryRows(){
   const d=design(S.design);
-  return [['Дизайн',`№ ${d.code} · ${d.name}`], ...partsOf(d).map(p=>[label(p), fabLabel(fab(S.fabrics[p]))+(S.widths[p]!=null?`, ширина ${cm(S.widths[p])}`:'')])];
+  const z=S.size;
+  return [['Дизайн',`№ ${d.code} · ${d.name}`],
+    ...(z ? [['Размер',`${z.w} × ${z.h} см`],['Длина цепи',`${chainOf(z)} см`]] : [['Размер','не указан']]),
+    ...partsOf(d).map(p=>[label(p), fabLabel(fab(S.fabrics[p]))+(S.widths[p]!=null?`, ширина ${cm(S.widths[p])}`:'')]),
+    ...(z ? [['Предварительно',`≈ ${rub(price())}`]] : [])];
 }
 // Заявка уходит менеджеру в мессенджер клиента: ссылка открывает чат с номером ателье и готовым текстом.
 // Telegram не умеет подставлять текст по номеру — его копируем в буфер, клиенту остаётся вставить.
@@ -994,6 +1085,7 @@ function openOrder(){
   lastFocus=document.activeElement;
   $('sheet').innerHTML = `<div class="sheet-head"><div><p class="eyebrow">Ваш дизайн</p><h2 id="order-title">Отправить менеджеру</h2></div><button class="x" data-close aria-label="Закрыть">✕</button></div>
     <ul class="sum-list">${summaryRows().map(([a,b])=>`<li><span>${a}</span><span>${b}</span></li>`).join('')}</ul>
+    ${S.size ? '' : `<button type="button" class="btn ghost" data-sizes>Указать размер и узнать цену</button>`}
     <div class="form">
       <div><label for="o-comment">Размер окна или комментарий</label><textarea class="in" id="o-comment" placeholder="Например: окно 150 × 160 см, нужен замер"></textarea></div>
       <div><p class="legend">Отправить через</p>
