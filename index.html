@@ -121,8 +121,8 @@ h3{font-size:15px;font-weight:600;margin:0}
   .m-col{flex:none;position:relative}
   .m-col select{appearance:none;-webkit-appearance:none;height:30px;max-width:112px;padding:0 24px 0 10px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--fg);font:inherit;font-size:12px;font-weight:500;text-overflow:ellipsis}
   .m-col::after{content:'';position:absolute;right:10px;top:12px;width:5px;height:5px;border-right:1.5px solid var(--fg);border-bottom:1.5px solid var(--fg);transform:rotate(45deg);pointer-events:none}
-  .m-strip{flex:1;min-width:0;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:4px 4px 2px;scroll-snap-type:x proximity}
-  .m-sw{flex:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:0;border:0;background:none;color:var(--muted);font:inherit;font-size:9.5px;line-height:1;cursor:pointer;scroll-snap-align:center}
+  .m-strip{flex:1;min-width:0;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:4px calc(50% - 14px) 2px;position:relative}
+  .m-sw{flex:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:0;border:0;background:none;color:var(--muted);font:inherit;font-size:9.5px;line-height:1;cursor:pointer}
   .m-sw i{width:28px;height:28px;border-radius:50%;background:center/cover no-repeat;border:1px solid var(--line)}
   .m-sw.on{color:var(--fg);font-weight:700}
   .m-sw.on i{box-shadow:0 0 0 1.5px var(--bg),0 0 0 3px var(--fg)}
@@ -864,8 +864,10 @@ function renderDock(){
     <div class="m-row"><label class="m-col"><span class="sr">Каталог тканей</span><select name="col" aria-label="Каталог тканей">${colOptions(S.browse[p] || f.col)}</select></label>
     <div class="m-strip" data-part="${p}">${list.map(x=>`<button type="button" class="m-sw${x.id===f.id?' on':''}" data-fab="${x.id}" aria-pressed="${x.id===f.id}"><i style="background-image:url(${swatch(x)})"></i>${x.name.replace('№ ','')}</button>`).join('')}</div></div>`;
   const strip=document.querySelector('.m-strip'), on=strip.querySelector('.on');
+  // выбранная ткань всегда по центру строки; при смене ткани строка плавно доезжает от прежнего места
   if (keep!=null) strip.scrollLeft=keep;
-  if (on && (keep==null || on.offsetLeft<strip.scrollLeft || on.offsetLeft+on.offsetWidth>strip.scrollLeft+strip.clientWidth)) strip.scrollLeft=on.offsetLeft-(strip.clientWidth-on.offsetWidth)/2;
+  if (on){ const left=on.offsetLeft-(strip.clientWidth-on.offsetWidth)/2;
+    if (keep==null) strip.scrollLeft=left; else strip.scrollTo({ left, behavior:'smooth' }); }
   fitStage();
 }
 // высоты нижней панели и дока — в CSS-переменные, чтобы штора заняла всё оставшееся место
