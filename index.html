@@ -1,0 +1,951 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+</head>
+<body>
+<title>Конструктор римских штор</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=Tenor+Sans&display=swap">
+<style>
+/* Layout: два экрана — сетка дизайнов, затем превью (липкое сверху на телефоне, слева на десктопе) и выбор тканей по частям шторы */
+:root{
+  /* палитра zateinitsa.ru: шоколад #3A211A, пудра #F0E0E1, голубой #D1E2EC, тауп #DACFC7 */
+  --bg:#FFFFFF; --fg:#3A211A; --muted:#7A645C; --line:#EADFDA; --soft:#F8F1F1;
+  --head:#F0E0E1; --tabs:rgba(255,255,255,.6);
+  --accent:#D1E2EC; --accent-fg:#3A211A; --danger:#B3261E; --scrim:rgba(58,33,26,.45);
+  --wall:#EEE7E2; --wall2:#DACFC7; --glass1:#C1D1DB; --glass2:#EEF4F7; --frame:#FBFBF9; --cornice:#CDBFB6;
+  --display:"Tenor Sans","Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --body:"Golos Text",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --r:14px; --head-h:60px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#1C1311; --fg:#F0E0E1; --muted:#B8A49C; --line:#3A2B26; --soft:#261A17;
+  --head:#261A17; --tabs:#1C1311;
+  --accent:#D1E2EC; --accent-fg:#3A211A; --danger:#F2B8B5; --scrim:rgba(0,0,0,.6);
+  --wall:#3A2B26; --wall2:#2E211D; --glass1:#3E4C55; --glass2:#56656E; --frame:#4A3A34; --cornice:#5E4C45;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1C1311; --fg:#F0E0E1; --muted:#B8A49C; --line:#3A2B26; --soft:#261A17;
+  --head:#261A17; --tabs:#1C1311;
+  --accent:#D1E2EC; --accent-fg:#3A211A; --danger:#F2B8B5; --scrim:rgba(0,0,0,.6);
+  --wall:#3A2B26; --wall2:#2E211D; --glass1:#3E4C55; --glass2:#56656E; --frame:#4A3A34; --cornice:#5E4C45;
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:16px/1.5 var(--body);-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--head)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--head);border-bottom:1px solid var(--line)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:12px;height:var(--head-h)}
+.logo{display:flex;flex-direction:column;line-height:1.15;color:var(--fg);text-decoration:none;font-family:var(--display);font-size:17px;letter-spacing:.02em}
+.logo small{font-family:var(--body);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.tabs{display:flex;background:var(--tabs);border-radius:999px;padding:4px}
+.tabs a{display:flex;align-items:center;gap:6px;padding:7px 13px 7px 8px;border-radius:999px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;white-space:nowrap}
+.tabs a i{font-style:normal;display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--line);font-size:11px;color:var(--fg)}
+.tabs a.on{background:var(--bg);color:var(--fg);box-shadow:0 1px 3px rgba(58,33,26,.12)}
+.tabs a.on i{background:var(--accent);color:var(--accent-fg)}
+
+.intro{padding-block:36px 20px}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(32px,5.4vw,56px);line-height:1.04;letter-spacing:-.01em;margin:0 0 12px;text-wrap:balance}
+.intro p{margin:0;color:var(--muted);font-size:17px;max-width:54ch}
+h2{font-family:var(--display);font-weight:400;font-size:clamp(26px,3.2vw,38px);line-height:1.08;margin:0;text-wrap:balance}
+h3{font-size:15px;font-weight:600;margin:0}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 6px;font-variant-numeric:tabular-nums}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips.scroll{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.chips.scroll::-webkit-scrollbar{display:none}
+.chip{position:relative;flex:none}
+.chip input{position:absolute;opacity:0;pointer-events:none}
+.chip span{display:block;padding:9px 14px;border:1px solid var(--line);border-radius:999px;font-size:14px;cursor:pointer;background:var(--bg);white-space:nowrap}
+.chip input:checked+span{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.chip input:focus-visible+span{outline:2px solid var(--fg);outline-offset:2px}
+
+.filters{margin-bottom:18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;padding-bottom:48px}
+@media (min-width:900px){.grid{grid-template-columns:repeat(5,1fr)}}
+.card{display:flex;flex-direction:column;gap:2px;padding:8px 8px 12px;border:1px solid var(--line);border-radius:var(--r);background:var(--bg);text-align:left;cursor:pointer;min-width:0}
+.card:hover{border-color:var(--muted)}
+.card.on{border-color:var(--fg);box-shadow:inset 0 0 0 1px var(--fg)}
+.card canvas{display:block;width:100%;aspect-ratio:4/5;border-radius:10px;margin-bottom:8px}
+.card small{font-size:11.5px;color:var(--muted);padding-inline:4px;letter-spacing:.06em;font-variant-numeric:tabular-nums}
+.card b{font-weight:500;font-size:15px;line-height:1.25;padding-inline:4px}
+.card span{font-size:12.5px;color:var(--muted);padding-inline:4px;line-height:1.35}
+.empty{color:var(--muted)}
+
+.product{display:grid;gap:20px;padding-block:16px 48px}
+.stage{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--head-h) + 1px);z-index:5;background:var(--bg);padding-block:8px;min-width:0}
+.stage canvas{display:block;width:100%;height:clamp(230px,40vh,420px);border-radius:18px}
+.seg{position:absolute;top:18px;right:10px;display:flex;background:rgba(255,255,255,.75);border-radius:999px;padding:3px;backdrop-filter:blur(6px)}
+.seg.left{right:auto;left:10px}
+@media (max-width:560px){.seg.left{top:auto;bottom:18px}}
+.seg button{border:0;background:none;padding:6px 12px;border-radius:999px;font-size:13px;cursor:pointer;color:#3A211A}
+.seg button.on{background:#3A211A;color:#FFFFFF}
+.light-note{position:absolute;left:12px;right:12px;bottom:18px;margin:0;padding:7px 12px;border-radius:12px;background:rgba(255,255,255,.82);color:#3A211A;font-size:12px;line-height:1.35;text-align:center;backdrop-filter:blur(6px)}
+.panel{min-width:0;display:flex;flex-direction:column;gap:22px}
+@media (min-width:900px){
+  .product{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:56px;align-items:start;padding-top:32px}
+  .stage{top:calc(env(safe-area-inset-top,0px) + var(--head-h) + 20px);padding:0}
+  .stage canvas{height:auto;aspect-ratio:1/1}
+  .seg{top:12px;right:12px}
+  .seg.left{left:12px}
+}
+.d-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px}
+.d-head>div{min-width:0}
+.d-head p.tags{margin:6px 0 0;color:var(--muted);font-size:14px}
+.link{flex:none;background:none;border:0;padding:0;color:var(--fg);font-weight:500;font-size:14px;text-decoration:underline;text-underline-offset:4px;text-decoration-color:var(--line);cursor:pointer}
+.link:hover{text-decoration-color:var(--fg)}
+
+.works{display:flex;flex-direction:column;gap:10px}
+.works-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.works-head span{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.works-row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px}
+.works-row::-webkit-scrollbar{display:none}
+.work{flex:none;width:76px;aspect-ratio:3/4;padding:0;border:1px solid var(--line);border-radius:10px;background:var(--soft) center/cover no-repeat;cursor:pointer}
+.work:hover{border-color:var(--muted)}
+.works p{margin:0;font-size:13px;color:var(--muted)}
+.ov.lb{align-items:center;background:rgba(20,12,10,.92);padding:60px 16px 64px}
+.lb img{display:block;max-width:100%;max-height:100%;object-fit:contain;border-radius:8px}
+.lb-btn{position:absolute;width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;font-size:22px;line-height:1;cursor:pointer}
+.lb-btn:hover{background:rgba(255,255,255,.28)}
+.lb-x{top:calc(12px + env(safe-area-inset-top,0px));right:12px;font-size:18px}
+.lb-prev,.lb-next{top:50%;transform:translateY(-50%)}
+.lb-prev{left:12px} .lb-next{right:12px}
+.lb-cap{position:absolute;left:16px;right:16px;bottom:calc(20px + env(safe-area-inset-bottom,0px));margin:0;text-align:center;color:#fff;font-size:14px;font-variant-numeric:tabular-nums}
+@media (min-width:640px){.ov.lb{padding:60px 72px 64px}}
+.parts{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.parts::-webkit-scrollbar{display:none}
+.part{flex:none;display:flex;align-items:center;gap:10px;padding:6px 14px 6px 6px;border:1px solid var(--line);border-radius:999px;background:var(--bg);cursor:pointer;text-align:left}
+.part.on{border-color:var(--fg);box-shadow:inset 0 0 0 1px var(--fg)}
+.part i{width:34px;height:34px;border-radius:50%;background-size:cover;border:1px solid var(--line);flex:none}
+.part b{display:block;font-weight:500;font-size:14px;line-height:1.2}
+.part small{display:block;font-size:12px;color:var(--muted);line-height:1.2;white-space:nowrap}
+
+.editor{display:flex;flex-direction:column;gap:18px}
+.ed-head p{margin:4px 0 0;color:var(--muted);font-size:14px}
+.ed-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.zoom-btn{flex:none;display:flex;align-items:center;gap:8px;padding:4px 12px 4px 4px;border:1px solid var(--line);border-radius:999px;background:none;color:var(--fg);font:inherit;font-size:13px;font-weight:500;cursor:pointer}
+.zoom-btn:hover{border-color:var(--muted)}
+.zoom-btn i{width:32px;height:32px;border-radius:50%;background:center/cover no-repeat}
+.lb.fabzoom{padding-bottom:124px}
+.lb.fabzoom img{width:min(100%,520px);aspect-ratio:1;object-fit:cover}
+.lb.fabzoom.orig img{width:auto;max-width:min(100%,520px);aspect-ratio:auto;object-fit:contain}
+.seg.lb-seg{top:calc(12px + env(safe-area-inset-top,0px));left:12px;right:auto}
+.lb-pick{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(52px + env(safe-area-inset-bottom,0px));padding:12px 22px;border:0;border-radius:999px;background:#fff;color:#1d1411;font:inherit;font-size:15px;font-weight:500;cursor:pointer}
+.lb-pick:disabled{background:rgba(255,255,255,.16);color:#fff;cursor:default}
+.width{display:flex;flex-direction:column;gap:10px;padding:14px 16px;background:var(--soft);border-radius:var(--r)}
+.width-top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.width-top label{font-size:14px;font-weight:500}
+.stepper{display:flex;align-items:center;gap:4px}
+.stepper button{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--bg);font-size:18px;cursor:pointer;line-height:1}
+.stepper output{min-width:64px;text-align:center;font-weight:600;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:#3A211A;height:28px;margin:0}
+:root[data-theme="dark"] input[type=range]{accent-color:#D1E2EC}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) input[type=range]{accent-color:#D1E2EC}}
+.width small{font-size:12px;color:var(--muted)}
+
+.fabrics{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:14px 10px}
+.fab{display:flex;flex-direction:column;align-items:center;gap:6px;padding:0;border:0;background:none;cursor:pointer;text-align:center;min-width:0}
+.fab i{width:64px;height:64px;border-radius:50%;background-size:cover;border:1px solid var(--line);box-shadow:inset 0 -6px 12px rgba(0,0,0,.08)}
+.fab.on i{outline:2px solid var(--fg);outline-offset:3px}
+.fab span{font-size:12.5px;line-height:1.25;color:var(--muted)}
+.fab.on span{color:var(--fg);font-weight:500}
+
+main{padding-bottom:100px}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:25;background:var(--bg);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.bar-in{display:flex;align-items:center;gap:10px;padding-block:12px}
+.bar-sum{flex:1;min-width:0}
+.bar-sum b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-sum span{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn{height:50px;padding:0 22px;border:0;border-radius:999px;background:var(--accent);color:var(--accent-fg);font-weight:600;font-size:15px;cursor:pointer;white-space:nowrap}
+.btn.ghost{background:var(--soft);color:var(--fg);padding:0 16px}
+@media (max-width:420px){.btn{padding:0 16px}}
+
+[hidden]{display:none!important}
+.ov{position:fixed;inset:0;z-index:50;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-width:520px;max-height:92vh;overflow:auto;background:var(--bg);border-radius:22px 22px 0 0;padding-block:24px calc(24px + env(safe-area-inset-bottom,0px));padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:16px}
+@media (min-width:640px){.ov{align-items:center}.sheet{border-radius:22px}}
+.sheet-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.x{border:0;background:var(--soft);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;flex:none}
+.sum-list{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.sum-list li{display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.sum-list span:first-child{color:var(--muted)}
+.sum-list span:last-child{text-align:right}
+.form{display:flex;flex-direction:column;gap:14px}
+.form label,.form legend{font-size:13px;color:var(--muted);display:block;margin-bottom:6px;padding:0}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+.in{width:100%;height:50px;border:1px solid var(--line);border-radius:12px;padding:0 14px;font:16px var(--body);background:var(--bg);color:var(--fg)}
+.in:focus{outline:none;border-color:var(--fg)}
+textarea.in{height:84px;padding:12px 14px;resize:vertical}
+.err{color:var(--danger);font-size:13px;margin:4px 0 0}
+.note{margin:0;font-size:13px;color:var(--muted)}
+pre.msg{white-space:pre-wrap;word-break:break-word;background:var(--soft);border-radius:12px;padding:14px;margin:0;font:13px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace}
+.row-btns{display:flex;gap:10px;flex-wrap:wrap}
+.legend{margin:0 0 8px;font-size:14px;font-weight:500}
+.msgrs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn.msgr{display:flex;align-items:center;justify-content:center;text-decoration:none}
+.link.call{align-self:center;font-weight:400}
+@media (prefers-reduced-motion:no-preference){.card,.part,.chip span,.tabs a{transition:border-color .15s,background-color .15s,box-shadow .15s}}
+</style>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="logo" href="#designs">Римские шторы<small>конструктор</small></a>
+    <nav class="tabs" aria-label="Шаги">
+      <a href="#designs" id="tab-designs"><i>1</i>Дизайн</a>
+      <a href="#fabrics" id="tab-fabrics"><i>2</i>Ткани</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section id="view-designs">
+    <div class="wrap intro">
+      <h1>Выберите дизайн шторы</h1>
+      <p>16 моделей нашего ателье. Нажмите на понравившуюся, а на следующем шаге подберите ткани для основы, кантов и декора.</p>
+    </div>
+    <div class="wrap">
+      <div class="chips scroll filters" id="filters" role="radiogroup" aria-label="Фильтр дизайнов"></div>
+      <div class="grid" id="grid"></div>
+    </div>
+  </section>
+
+  <section id="view-fabrics" hidden>
+    <div class="wrap product">
+      <div class="stage">
+        <canvas id="cv" aria-label="Превью шторы"></canvas>
+        <div class="seg left" id="seg-mode" role="group" aria-label="Вид превью" hidden>
+          <button type="button" data-mode="photo">Фото</button>
+          <button type="button" data-mode="scheme">Схема</button>
+        </div>
+        <div class="seg" id="seg-view" role="group" aria-label="Положение шторы">
+          <button type="button" data-view="raised">Приподнята</button>
+          <button type="button" data-view="down">Опущена</button>
+          <button type="button" data-view="light">На просвет</button>
+        </div>
+        <p class="light-note" id="light-note" hidden>Светопропускаемость около 50%: ткань мягко рассеивает дневной свет, но не затемняет комнату полностью. Это не блэкаут.</p>
+      </div>
+      <div class="panel">
+        <div class="d-head" id="d-head"></div>
+        <div class="works" id="works"></div>
+        <div class="parts" id="parts" role="tablist" aria-label="Части шторы"></div>
+        <div class="editor" id="editor"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="bar" id="bar" hidden>
+  <div class="wrap bar-in">
+    <button class="btn ghost" id="bar-back">Дизайны</button>
+    <div class="bar-sum"><b id="bar-title"></b><span id="bar-note"></span></div>
+    <button class="btn" id="bar-send">Отправить дизайн</button>
+  </div>
+</div>
+
+<div class="ov lb" id="lb" hidden role="dialog" aria-modal="true" aria-label="Готовые работы">
+  <img id="lb-img" alt="">
+  <button type="button" class="lb-btn lb-x" id="lb-x" data-lbclose aria-label="Закрыть">✕</button>
+  <button type="button" class="lb-btn lb-prev" id="lb-prev" data-lbstep="-1" aria-label="Предыдущее фото">‹</button>
+  <button type="button" class="lb-btn lb-next" id="lb-next" data-lbstep="1" aria-label="Следующее фото">›</button>
+  <p class="lb-cap" id="lb-cap"></p>
+  <button type="button" class="lb-pick" id="lb-pick" data-lbpick hidden></button>
+  <div class="seg lb-seg" id="lb-seg" hidden role="group" aria-label="Как показать ткань"><button type="button" data-fview="zoom">Крупно</button><button type="button" data-fview="orig">Целиком</button></div>
+</div>
+
+<div class="ov" id="order" hidden role="dialog" aria-modal="true" aria-labelledby="order-title">
+  <div class="sheet" id="sheet"></div>
+</div>
+
+<script>
+/* ---------- Ткани ---------- */
+// Фото образцов лежат в fabrics/<коллекция>/<номер>.jpg. Для каждого номера: средний цвет и сколько см ткани на фото.
+// № 3 — фото, обработанное вручную (source/klot-custom): масштаб подобран по плетению, повтор зеркальный.
+const KLOT = {
+  1:['#CDC4B8',9.7],
+  2:['#D9C9B5',9.7],
+  3:['#CBB599',10.3],
+  4:['#D2B79B',9.2],
+  5:['#A78A6B',7.1],
+  6:['#8E7152',7.3],
+  7:['#A4805E',9.5],
+  8:['#7C573E',9.5],
+  9:['#775E4D',9.0],
+  11:['#421F12',9.7],
+  12:['#210F0F',11.6],
+  13:['#B37534',11.6],
+  14:['#7E6839',10.8],
+  15:['#433C1F',11.7],
+  16:['#8D4130',11.0],
+  17:['#DD9F86',9.0],
+  18:['#886C5F',11.7],
+  19:['#8C5D53',13.7],
+  20:['#5F3238',10.1],
+  21:['#82968C',8.8],
+  22:['#757A7E',11.0],
+  23:['#343D4B',11.2],
+  24:['#0D0D19',11.5],
+  25:['#CCBAAA',9.7],
+  26:['#867464',11.5],
+  27:['#8A7165',11.9],
+  28:['#635855',14.1],
+  29:['#514745',14.1],
+  30:['#443731',11.9],
+  31:['#2D1F1B',11.5],
+};
+const MIRROR = new Set(['klot-3']); // фото без бесшовной обработки
+const COLLECTIONS = [ { id:'klot', name:'Клот', dir:'fabrics/klot', items:Object.entries(KLOT) } ];
+const FABRICS = COLLECTIONS.flatMap(c=>c.items.map(([n,[color,cm]])=>({ id:`${c.id}-${n}`, col:c.id, colName:c.name, name:`№ ${n}`, color, cm, img:`${c.dir}/${n}.jpg`, zoom:`${c.dir}/zoom/${n}.jpg`, orig:`${c.dir}/orig/${n}.jpg` })));
+const fab = id => FABRICS.find(f=>f.id===id) || FABRICS[0];
+const fabLabel = f => `${f.colName} · ${f.name}`;
+
+/* ---------- Дизайны ---------- */
+// Канты (размеры в см, d — отступ от края, db — отступ снизу, если отличается):
+//   stripes — вертикальные полосы по бокам; edge-u — рамка по краю боков и низа;
+//   inner-u — П-рамка с отступом; arch-u — П-рамка с дугами в нижних углах (r — радиус);
+//   greek-key — меандр: боковая полоса огибает квадрат и уходит нижней полосой к другому краю.
+// hem — высота нижней части под складками; depth — глубина фигурного низа.
+const K = (shape, part, w, d=0, extra={}) => ({ shape, part, w, d, ...extra });
+const D = (bottom, kants, x={}) => ({ bottom, kants, depth:x.depth||0, hem:x.hem||12, hemPart:!!x.hemPart,
+  bows:x.bows||null, ruffle:x.ruffle||0, pompons:!!x.pompons, tassel:!!x.tassel, fabrics:x.fabrics||{}, labels:x.labels||{} });
+const Gr='klot-22', Be='klot-2', Wh='klot-1';
+const TWO = { kant1:'Внешний кант', kant2:'Внутренний кант' };
+const DESIGNS = [
+  [1,'Полосы и рюши', D('straight',[K('stripes','kant1',7,10,{ stop:6 })],{ hem:12, ruffle:15, fabrics:{ main:Gr, kant1:Be, ruffle:Be } })],
+  [2,'Волна с кистью', D('notch2',[K('inner-u','kant1',9,10,{ db:7 })],{ depth:10, hem:30, tassel:true, fabrics:{ main:Be, kant1:Gr, tassel:Be } })],
+  [3,'Греческий ключ', D('straight',[K('greek-key','kant1',5,13.5,{ db:13 })],{ hem:41, fabrics:{ main:Gr, kant1:Be } })],
+  [4,'Банты на светлом низе', D('straight',[K('stripes','kant1',3.5,18.5)],{ hem:40, hemPart:true, bows:{ at:'stripes', y:30, size:6, tail:28 }, fabrics:{ main:Gr, kant1:Be, hem:Be, bows:Be } })],
+  [5,'Двойные полосы с бантами', D('straight',[K('stripes','kant1',5.5,7),K('stripes','kant2',7,20)],{ hem:22, bows:{ at:'between', y:14, size:5, tail:16 }, fabrics:{ main:Be, kant1:Gr, kant2:Gr, bows:Be }, labels:{ kant1:'Внешняя полоса', kant2:'Внутренняя полоса' } })],
+  [6,'Помпоны', D('straight',[],{ hem:10, pompons:true, fabrics:{ main:Gr, pompons:Wh } })],
+  [7,'П-кант с помпонами', D('straight',[K('inner-u','kant1',4,6.5,{ db:9 })],{ hem:18, pompons:true, fabrics:{ main:Be, kant1:Gr, pompons:Wh } })],
+  [8,'Полосы с бантами', D('straight',[K('stripes','kant1',3.6,12.5)],{ hem:20, bows:{ at:'stripes', y:8, size:5, tail:22 }, fabrics:{ main:Gr, kant1:Be, bows:Be } })],
+  [9,'Рамка с мысом и кистью', D('ogee',[K('edge-u','kant1',10)],{ depth:12, hem:26, tassel:true, fabrics:{ main:Be, kant1:Gr, tassel:Gr } })],
+  [10,'Фестоны', D('scallop4',[],{ depth:14, hem:32, fabrics:{ main:Gr } })],
+  [11,'Рамка-волна с кистью', D('notch2',[K('edge-u','kant1',10)],{ depth:10, hem:26, tassel:true, fabrics:{ main:Gr, kant1:Be, tassel:Gr } })],
+  [12,'Двойной кант с арками', D('straight',[K('inner-u','kant2',4.5,21),K('arch-u','kant1',7,11,{ r:27 })],{ hem:50, fabrics:{ main:Gr, kant1:Be, kant2:Be }, labels:TWO })],
+  [13,'Двойная П-рамка', D('straight',[K('inner-u','kant1',9.6,10.5),K('inner-u','kant2',6,23.5)],{ hem:38, fabrics:{ main:Gr, kant1:Be, kant2:Be }, labels:TWO })],
+  [14,'Широкая рамка', D('straight',[K('edge-u','kant1',11)],{ hem:18, fabrics:{ main:Be, kant1:Gr } })],
+  [15,'П-рамка', D('straight',[K('inner-u','kant1',9,11.6)],{ hem:28, fabrics:{ main:Gr, kant1:Be } })],
+  [16,'Тонкая П-рамка', D('straight',[K('inner-u','kant1',2.2,11.2)],{ hem:22, fabrics:{ main:Be, kant1:Gr } })],
+].map(([n,name,d])=>({ ...d, name, id:'d'+n, code:String(n).padStart(2,'0') }));
+const design = id => DESIGNS.find(d=>d.id===id);
+
+const PART_NAMES = { main:'Основная ткань', kant1:'Кант', kant2:'Второй кант', hem:'Ткань низа', bows:'Бантики', ruffle:'Рюши', pompons:'Помпоны', tassel:'Кисть' };
+const SHORT = { main:'Основа', kant1:'Кант', kant2:'Второй кант', hem:'Низ', bows:'Бантики', ruffle:'Рюши', pompons:'Помпоны', tassel:'Кисть' };
+const BOTTOMS = { notch2:'фигурный низ', ogee:'низ с мысом', scallop4:'фестоны' };
+function partsOf(d){
+  const p=['main', ...['kant1','kant2'].filter(x=>d.kants.some(k=>k.part===x))];
+  if (d.hemPart) p.push('hem'); if (d.bows) p.push('bows'); if (d.ruffle) p.push('ruffle');
+  if (d.pompons) p.push('pompons'); if (d.tassel) p.push('tassel');
+  return p;
+}
+function tagsOf(d){
+  const t=[], n=new Set(d.kants.map(k=>k.part)).size;
+  if (n===1) t.push(d.kants[0].shape==='stripes'?'полосы':'кант');
+  if (n>1) t.push(d.kants.every(k=>k.shape==='stripes')?'двойные полосы':'двойной кант');
+  if (d.kants.some(k=>k.shape==='greek-key')) t.push('квадраты');
+  if (d.kants.some(k=>k.shape==='arch-u')) t.push('арки');
+  if (BOTTOMS[d.bottom]) t.push(BOTTOMS[d.bottom]);
+  if (d.hemPart) t.push('низ другой тканью');
+  if (d.bows) t.push('банты'); if (d.ruffle) t.push('рюши'); if (d.pompons) t.push('помпоны'); if (d.tassel) t.push('кисть');
+  return t.length ? t.join(' · ') : 'гладкое полотно';
+}
+const FILTERS = [
+  ['all','Все',()=>true], ['plain','Без канта',d=>!d.kants.length], ['double','Двойной кант',d=>d.kants.some(k=>k.part==='kant2')],
+  ['bows','С бантами',d=>!!d.bows], ['shaped','Фигурный низ',d=>d.bottom!=='straight'], ['decor','Рюши, помпоны, кисти',d=>d.ruffle||d.pompons||d.tassel],
+];
+
+/* ---------- Состояние ---------- */
+const S = {
+  design:'d1', filter:'all', part:'main', view:'raised', photo:true,
+  fabrics:{ main:Gr, kant1:Be, kant2:Be, hem:Be, bows:Be, ruffle:Be, pompons:Wh, tassel:Be },
+  widths:{}, browse:{},
+};
+function resetWidths(){ S.widths={}; design(S.design).kants.forEach(k=>{ if(S.widths[k.part]==null) S.widths[k.part]=k.w; }); }
+resetWidths();
+Object.assign(S.fabrics, design(S.design).fabrics);
+const label = (p, short) => { const d=design(S.design); return (photoMode(d) && photoOf(d).labels[p]) || d.labels[p] || (short ? SHORT : PART_NAMES)[p]; };
+/* ---------- Утилиты ---------- */
+const $ = id => document.getElementById(id);
+const cm = n => n.toLocaleString('ru-RU',{ maximumFractionDigits:1 }) + ' см';
+
+/* ---------- Ткани из фото ---------- */
+// Каждое фото — бесшовный квадрат 256 px, cm — сколько сантиметров ткани на нём. Тайл собирается 2 × 2 (из MIRROR — зеркально).
+const TEX=512, texCache={}, imgs={};
+let texTimer=null;
+FABRICS.forEach(f=>{ const im=new Image(); im.onload=()=>{ clearTimeout(texTimer); texTimer=setTimeout(redraw,60); }; im.src=f.img; imgs[f.id]=im; });
+// px — размер тайла на экране: большой тайл уменьшаем по половинке до него, иначе плетение рябит
+function texture(f, px){
+  px=Math.max(16,Math.min(TEX,Math.round(px/8)*8)); const key=f.id+'@'+px;
+  if (texCache[key]) return texCache[key];
+  let c=texCache[f.id] || texBase(f); if (!c) return null;
+  for (let s=TEX/2; s>=px; s/=2){ const n=document.createElement('canvas'); n.width=n.height=s; const x=n.getContext('2d'); x.imageSmoothingQuality='high'; x.drawImage(c,0,0,s,s); c=n; }
+  if (c.width!==px){ const n=document.createElement('canvas'); n.width=n.height=px; const x=n.getContext('2d'); x.imageSmoothingQuality='high'; x.drawImage(c,0,0,px,px); c=n; }
+  return texCache[key]=c;
+}
+function texBase(f){
+  const im=imgs[f.id]; if (!im || !im.complete || !im.naturalWidth) return null;
+  const c=document.createElement('canvas'); c.width=c.height=TEX; const x=c.getContext('2d'), h=TEX/2;
+  const tiles = MIRROR.has(f.id) ? [[1,1,0,0],[-1,1,TEX,0],[1,-1,0,TEX],[-1,-1,TEX,TEX]] : [[1,1,0,0],[1,1,h,0],[1,1,0,h],[1,1,h,h]];
+  tiles.forEach(([sx,sy,tx,ty])=>{ x.setTransform(sx,0,0,sy,tx,ty); x.drawImage(im,0,0,h,h); });
+  return texCache[f.id]=c;
+}
+const swatch = f => f.img;
+
+/* ---------- Фото-режим ---------- */
+// Для этих дизайнов превью — перекрашенное фото: светотень, складки и строчки берутся с фото, цвет — из выбранной ткани.
+// photos/dNN-main.png и -kant.png — серая светотень (200 = обычный тон ткани), у -kant прозрачность = доля канта.
+// Готовятся скриптом tools/photo_prep.py. link — части, которые на фото сшиты из той же ткани и меняются вместе.
+// parts — какие части выбираются в фото-режиме (по умолчанию основа и кант); второй из них красит слой -kant.
+const PHOTOS = {
+  '01': { base:'photos/d01', link:{ kant1:['ruffle'] }, labels:{ kant1:'Полосы и рюши' } },
+  '02': { base:'photos/d02', link:{ main:['tassel'] }, labels:{ main:'Основа и кисть', kant1:'Кант' } },
+  '03': { base:'photos/d03', link:{}, labels:{ kant1:'Кант' } },
+  '04': { base:'photos/d04', link:{ kant1:['hem','bows'] }, labels:{ kant1:'Полосы, низ и банты' } },
+  '05': { base:'photos/d05', link:{ main:['bows'], kant1:['kant2'] }, labels:{ kant1:'Полосы' } },
+  '06': { base:'photos/d06', parts:['main','pompons'], link:{}, labels:{} },
+  '07': { base:'photos/d07', parts:['main','kant1','pompons'], link:{}, labels:{ kant1:'Кант' } },
+  '08': { base:'photos/d08', link:{ kant1:['bows'] }, labels:{ kant1:'Полосы и банты' } },
+  '09': { base:'photos/d09', link:{ kant1:['tassel'] }, labels:{ kant1:'Кант и кисть' } },
+  '10': { base:'photos/d10', parts:['main'], link:{}, labels:{} },
+  '11': { base:'photos/d11', link:{ kant1:['tassel'] }, labels:{ kant1:'Кант и кисть' } },
+  '12': { base:'photos/d12', link:{ kant1:['kant2'] }, labels:{ kant1:'Кант' } },
+  '13': { base:'photos/d13', link:{ kant1:['kant2'] }, labels:{ kant1:'Кант' } },
+  '14': { base:'photos/d14', link:{}, labels:{ kant1:'Кант' } },
+  '15': { base:'photos/d15', link:{}, labels:{ kant1:'Кант' } },
+  '16': { base:'photos/d16', link:{}, labels:{ kant1:'Кант' } },
+};
+// карты в WebP (tools/photo_web.py): маленькие -thumb для каталога грузятся сразу,
+// большие подгружаются в фоне по очереди; если дизайн открыли раньше — штора проявляется, когда большие готовы
+const photoImgs = {};
+const photoLayers = p => ['main','kant',...(p.parts?.[2]?['extra']:[])];
+const loaded = im => im && im.complete && im.naturalWidth > 0;
+function photoSet(code, thumb){
+  const p=PHOTOS[code], key=code+(thumb?'-thumb':'');
+  if (!photoImgs[key]) photoImgs[key]=Object.fromEntries(photoLayers(p).map(k=>{
+    const im=new Image(); im.onload=()=>redraw(); im.src=`${p.base.replace('photos/','photos/web/')}-${k}${thumb?'-thumb':''}.webp`; return [k,im]; }));
+  return photoImgs[key];
+}
+Object.keys(PHOTOS).forEach(code=>photoSet(code, true));
+function preloadFull(){
+  const codes=Object.keys(PHOTOS);
+  const next=()=>{ const code=codes.shift(); if (!code) return;
+    Promise.all(Object.values(photoSet(code, false)).map(im=>im.decode ? im.decode().catch(()=>{}) : null)).then(next); };
+  next();
+}
+window.addEventListener('load', ()=>setTimeout(preloadFull, 300));
+document.addEventListener('pointerdown', e=>{ const b=e.target.closest('[data-design]'), d=b && design(b.dataset.design); if (d && photoOf(d)) photoSet(d.code, false); });
+const photoOf = d => PHOTOS[d.code];
+const photoMode = d => !!photoOf(d) && S.photo;
+const shownParts = d => photoMode(d) ? (photoOf(d).parts || ['main','kant1']) : partsOf(d);
+function linkParts(d){ const p=photoOf(d); if (!p || !S.photo) return; Object.entries(p.link).forEach(([from,to])=>to.forEach(t=>{ S.fabrics[t]=S.fabrics[from]; })); }
+function drawPhoto(cv, d, fabrics, thumb){
+  const W=cv.clientWidth, H=cv.clientHeight; if(!W||!H) return;
+  const dpr=Math.min(2, window.devicePixelRatio||1);
+  cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr);
+  const c=cv.getContext('2d'); c.setTransform(dpr,0,0,dpr,0,0);
+  const T=tokens(), g=c.createLinearGradient(0,0,0,H); g.addColorStop(0,T.wall); g.addColorStop(1,T.wall2);
+  c.fillStyle=g; c.fillRect(0,0,W,H);
+  const ready = set => Object.values(set).every(loaded);
+  const set = photoSet(d.code, !!thumb);
+  if (!ready(set)){ cv._wait=true; return; }
+  let fade=1;  // плавное появление, если большие карты пришли уже после открытия
+  if (cv._wait){ cv._wait=false; cv._t0=performance.now(); }
+  if (cv._t0){ fade=Math.min(1,(performance.now()-cv._t0)/300); if (fade<1) requestAnimationFrame(redraw); else cv._t0=0; }
+  const im=set.main, ik=set.kant;
+  const pad=thumb?.06:.07, s=Math.min(W*(1-2*pad)/im.naturalWidth, H*(1-2*pad)/im.naturalHeight);
+  const dw=im.naturalWidth*s, dh=im.naturalHeight*s, dx=(W-dw)/2, dy=(H-dh)/2;
+  // слой ткани: светотень × цвет ткани × 255/200, затем возвращаем прозрачность слоя
+  const tint = (img, color) => {
+    const n=document.createElement('canvas'); n.width=Math.round(dw*dpr); n.height=Math.round(dh*dpr);
+    const x=n.getContext('2d'); x.drawImage(img,0,0,n.width,n.height);
+    x.globalCompositeOperation='multiply'; x.fillStyle=color; x.fillRect(0,0,n.width,n.height);
+    const copy=document.createElement('canvas'); copy.width=n.width; copy.height=n.height; copy.getContext('2d').drawImage(n,0,0);
+    x.globalCompositeOperation='lighter'; x.globalAlpha=.275; x.drawImage(copy,0,0); x.globalAlpha=1;
+    x.globalCompositeOperation='destination-in'; x.drawImage(img,0,0,n.width,n.height);
+    return n;
+  };
+  c.save(); c.globalAlpha=fade; c.shadowColor='rgba(0,0,0,.22)'; c.shadowBlur=thumb?6:18; c.shadowOffsetY=thumb?2:6;
+  c.drawImage(tint(im, fab(fabrics.main).color),dx,dy,dw,dh); c.restore();
+  c.globalAlpha=fade;
+  const kp=(photoOf(d).parts || ['main','kant1'])[1];
+  if (kp) c.drawImage(tint(ik, fab(fabrics[kp]).color),dx,dy,dw,dh);
+  // третий слой (помпоны своей тканью), если он есть у фото
+  const xp=(photoOf(d).parts||[])[2], ix=set.extra;
+  if (xp && loaded(ix)) c.drawImage(tint(ix, fab(fabrics[xp]).color),dx,dy,dw,dh);
+}
+
+/* ---------- Готовые работы ---------- */
+// Фото готовых штор лежат в works/dNN/. Ключ — номер дизайна, значение — файлы в порядке показа.
+// Рядом с каждым фото лежит миниатюра <имя>-s.jpg для ряда превью.
+const WORKS = {
+  '03':['1.jpg','2.jpg','3.jpg'],
+};
+const thumbOf = src => src.replace(/\.jpg$/,'-s.jpg');
+const worksOf = d => (WORKS[d.code]||[]).map(f=>`works/d${d.code}/${f}`);
+
+/* ---------- Превью ---------- */
+const LIGHT_T = .5; // светопропускаемость тканей «Клот» для режима «На просвет»
+const SHADE_CM = 140; // превью всегда рисует штору шириной 140 см, чтобы канты и декор были в реальном масштабе
+function tokens(){
+  const s=getComputedStyle(document.documentElement), g=k=>s.getPropertyValue(k).trim();
+  return { wall:g('--wall'), wall2:g('--wall2'), glass1:g('--glass1'), glass2:g('--glass2'), frame:g('--frame'), cornice:g('--cornice') };
+}
+// Профиль фигурного низа: точки [s, глубина 0..1, переход], s = 0 в центре, 1 у края.
+// Переход: out — острый у предыдущей точки, in — острый у этой, cin — скруглённый угол, без метки — плавно.
+const half = pts => s => {
+  for (let i=1;i<pts.length;i++){
+    const [s0,v0]=pts[i-1], [s1,v1,e]=pts[i];
+    if (s<=s1 || i===pts.length-1){
+      const t=Math.min(1,Math.max(0,(s-s0)/(s1-s0)));
+      const f = e==='out' ? 1-(1-t)**2 : e==='in' ? t*t : e==='cin' ? 1-Math.sqrt(Math.max(0,1-t*t)) : (1-Math.cos(Math.PI*t))/2;
+      return v0+(v1-v0)*f;
+    }
+  }
+  return 0;
+};
+const sym = h => u => h(Math.abs(2*u-1));
+const PROFILES = {
+  notch2: sym(half([[0,.35],[.5,1,'out'],[.85,.72],[1,.95,'in']])),          // два полукруга, выемка по центру, острые углы
+  ogee: sym(half([[0,1],[.22,.42,'out'],[.6,.32],[.88,.3],[1,0,'cin']])),   // мыс по центру, скруглённые углы
+  scallop4: u => { const f=(u*4)%1; return Math.sqrt(Math.max(0,1-(2*f-1)**2)); },
+};
+
+function draw(cv, d, fabrics, widths, view, thumb){
+  const W=cv.clientWidth, H=cv.clientHeight; if(!W||!H) return;
+  const dpr=Math.min(2, window.devicePixelRatio||1);
+  cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr);
+  let c=cv.getContext('2d'); c.setTransform(dpr,0,0,dpr,0,0); // в режиме «На просвет» c на время переключается на карту света
+  const T=tokens();
+  let g=c.createLinearGradient(0,0,0,H); g.addColorStop(0,T.wall); g.addColorStop(1,T.wall2);
+  c.fillStyle=g; c.fillRect(0,0,W,H);
+
+  // окно 140 × 210
+  const r=140/210, maxW=W*(thumb?.62:.54), maxH=H*.72;
+  const ww=Math.min(maxW,maxH*r), wh=ww/r, wx=(W-ww)/2, wy=H*.12;
+  const fr=Math.max(3,Math.min(10,ww*.035));
+  c.fillStyle=T.frame; c.fillRect(wx-fr,wy-fr,ww+2*fr,wh+2*fr);
+  g=c.createLinearGradient(0,wy,0,wy+wh); g.addColorStop(0,T.glass1); g.addColorStop(1,T.glass2);
+  c.fillStyle=g; c.fillRect(wx,wy,ww,wh);
+  c.fillStyle=T.frame; c.fillRect(wx+ww/2-fr/2,wy,fr,wh); c.fillRect(wx,wy+wh*.36,ww,fr*.8);
+  c.fillRect(wx-fr*3,wy+wh+fr,ww+fr*6,fr*1.6);
+  c.fillStyle='rgba(0,0,0,.09)'; c.fillRect(wx-fr*3,wy+wh+fr*2.6,ww+fr*6,fr*.6);
+
+  // геометрия: ровное полотно, складки (если приподнята) и нижняя часть высотой hem
+  const pad=fr*1.6, x0=wx-pad, x1=wx+ww+pad, sw=x1-x0, y0=wy-pad, full=wh+pad*2, mid=(x0+x1)/2;
+  const ppc=sw/SHADE_CM;
+  const fh=Math.max(6,Math.min(full*.07,sw*.11)), b=fh*.3, hemPx=Math.max(d.hem*ppc,fh);
+  const lowered = view!=='raised', nf = lowered ? 0 : 2;
+  const yF = lowered ? y0+full-hemPx : Math.max(y0+full*.3, y0+full*.9-nf*fh-hemPx);
+  const segs=[{ top:y0, bot:yF, flat:true }];
+  for(let i=0;i<nf;i++) segs.push({ top:yF+i*fh-fh*.3, bot:yF+(i+1)*fh, bulge:b });
+  const last={ top:yF+nf*fh-(nf?fh*.3:0), bot:yF+nf*fh+hemPx, bulge:d.bottom==='straight'?b*.2:0, hem:true };
+  segs.push(last);
+
+  const A=d.depth*ppc, prof=PROFILES[d.bottom];
+  const dy = u => prof ? A*prof(u) : 4*last.bulge*u*(1-u);
+  const yb = x => last.bot + dy(Math.min(1,Math.max(0,(x-x0)/sw)));
+  const maxDy = A + b;
+  const bottomLine = (off, xa=x0-2, xb=x1+2) => { c.beginPath(); for(let x=xa;x<=xb;x+=1.5) x===xa?c.moveTo(x,yb(x)-off):c.lineTo(x,yb(x)-off); c.lineTo(xb,yb(xb)-off); };
+  const segPath = s => {
+    c.beginPath(); c.moveTo(x0,s.top); c.lineTo(x1,s.top);
+    if (s===last){ for(let x=x1;x>=x0;x-=1) c.lineTo(x,yb(x)); c.lineTo(x0,yb(x0)); }
+    else if (s.flat){ c.lineTo(x1,s.bot); c.lineTo(x0,s.bot); }
+    else { c.lineTo(x1,s.bot); c.quadraticCurveTo(mid,s.bot+2*s.bulge,x0,s.bot); }
+    c.closePath();
+  };
+  const pattern = id => { const f=fab(id), t=texture(f, ppc*f.cm*2*dpr); if (!t) return f.color; const p=c.createPattern(t,'repeat'); const ts=(ppc*f.cm*2)/t.width; if(p.setTransform) p.setTransform(new DOMMatrix([ts,0,0,ts,x0,y0])); return p; };
+  const P = {}; partsOf(d).forEach(p=>P[p]=pattern(fabrics[p]));
+
+  // тень и силуэт
+  c.save(); c.shadowColor='rgba(0,0,0,.28)'; c.shadowBlur=thumb?8:22; c.shadowOffsetY=thumb?3:9;
+  const silhouette = () => { c.beginPath(); c.moveTo(x0,y0); c.lineTo(x1,y0); for(let x=x1;x>=x0;x-=1.5) c.lineTo(x,yb(x)); c.closePath(); };
+  c.fillStyle=fab(fabrics.main).color; silhouette(); c.fill(); c.restore();
+
+  // рюши — под нижним краем
+  if (d.ruffle){
+    const rh=d.ruffle*ppc, step=Math.max(3,ppc*3);
+    c.save(); c.beginPath();
+    for(let x=x0;x<=x1;x+=1.5) c.lineTo(x,yb(x)-rh*.15);
+    for(let x=x1;x>=x0;x-=1.5) c.lineTo(x,yb(x)+rh+Math.sin(2*Math.PI*(x-x0)/step)*rh*.05);
+    c.closePath();
+    c.shadowColor='rgba(0,0,0,.22)'; c.shadowBlur=thumb?4:10; c.shadowOffsetY=thumb?2:4;
+    c.fillStyle=P.ruffle; c.fill(); c.shadowColor='transparent'; c.clip();
+    for(let x=x0;x<x1;x+=step){ const gr=c.createLinearGradient(x,0,x+step,0); gr.addColorStop(0,'rgba(0,0,0,.24)'); gr.addColorStop(.5,'rgba(255,255,255,.14)'); gr.addColorStop(1,'rgba(0,0,0,.24)'); c.fillStyle=gr; c.fillRect(x,0,step,H); }
+    g=c.createLinearGradient(0,last.bot,0,last.bot+rh*.3); g.addColorStop(0,'rgba(0,0,0,.25)'); g.addColorStop(1,'rgba(0,0,0,0)');
+    c.fillStyle=g; c.fillRect(x0,last.bot-rh*.2,sw,rh*.5);
+    c.restore();
+  }
+
+  const kantGeo = k => ({ kw:Math.max(1.2,(widths[k.part] ?? k.w)*ppc), dd:k.d*ppc, db:(k.db ?? k.d)*ppc });
+  function drawKant(k, isLast){
+    const { kw, dd, db }=kantGeo(k);
+    c.fillStyle=P[k.part]; c.strokeStyle=P[k.part]; c.lineJoin='miter'; c.lineWidth=kw;
+    switch(k.shape){
+      case 'stripes': {
+        const xl=x0+dd+kw/2, xr=x1-dd-kw/2, stop=(k.stop||0)*ppc;
+        [xl,xr].forEach(x=>c.fillRect(x-kw/2,y0,kw,yb(x)-stop-y0));
+        break;
+      }
+      case 'edge-u':
+        c.fillRect(x0,y0,kw,H); c.fillRect(x1-kw,y0,kw,H);
+        if (isLast){ c.lineWidth=kw*2; bottomLine(0); c.stroke(); }
+        break;
+      case 'inner-u': {
+        const xl=x0+dd+kw/2, xr=x1-dd-kw/2, off=db+kw/2;
+        c.beginPath(); c.moveTo(xl,y0-kw);
+        for(let x=xl;x<=xr;x+=1.5) c.lineTo(x,yb(x)-off);
+        c.lineTo(xr,yb(xr)-off); c.lineTo(xr,y0-kw); c.stroke(); break;
+      }
+      case 'arch-u': {
+        const off=dd+kw/2, xl=x0+off, xr=x1-off, yB=last.bot-off, R=Math.min(k.r*ppc,(xr-xl)/2-kw);
+        c.beginPath(); c.moveTo(xl,y0-kw); c.lineTo(xl,yB-R);
+        c.arc(xl,yB,R,-Math.PI/2,0); c.lineTo(xr-R,yB); c.arc(xr,yB,R,Math.PI,Math.PI*1.5);
+        c.lineTo(xr,y0-kw); c.stroke(); break;
+      }
+      case 'greek-key': { // пропорции по фото: квадрат 3¼ ширины канта, зазоры 0,65 ширины
+        const g=.65*kw, S=3.25*kw, h=kw/2, yB=last.bot-db-h, ySb=yB-kw-g, ySt=ySb-S+kw;
+        const xs=x0+dd+h, xl=x0+dd+kw+g+h, xr=x0+dd+kw+g+S-h; // центры: полоса, левая и правая стороны квадрата
+        const left=[[xs,y0-kw],[xs,ySb],[xr,ySb],[xr,ySt],[xl,ySt],[xl,yB]];
+        const path=[...left, ...left.slice().reverse().map(([x,y])=>[x0+x1-x,y])];
+        c.beginPath(); path.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y)); c.stroke(); break;
+      }
+    }
+  }
+
+  // порядок: верхнее полотно, низ, затем складки снизу вверх — каждая складка лежит поверх нижней и отбрасывает на неё мягкую тень
+  [segs[0], last, ...segs.slice(1,-1).reverse()].forEach(s=>{
+    const isLast=s===last, h=(isLast?s.bot+maxDy:s.bot+2*(s.bulge||0))-s.top+2;
+    if (!s.flat && !isLast){
+      c.save(); c.shadowColor='rgba(0,0,0,.34)'; c.shadowBlur=fh*.5; c.shadowOffsetY=fh*.14;
+      c.fillStyle=fab(fabrics.main).color; segPath(s); c.fill(); c.restore();
+    }
+    c.save(); segPath(s); c.clip();
+    c.fillStyle = isLast && d.hemPart ? P.hem : P.main; c.fillRect(x0,s.top,sw,h);
+    if (s.flat){ c.fillStyle='rgba(0,0,0,.045)'; [1,2].forEach(n=>c.fillRect(x0,y0+(yF-y0)*n/3,sw,1)); }
+    d.kants.forEach(k=>drawKant(k,isLast));
+    if (s.hem){
+      g=c.createLinearGradient(0,s.top,0,s.top+h); g.addColorStop(0,nf?'rgba(0,0,0,.16)':'rgba(0,0,0,.06)'); g.addColorStop(Math.min(.3,fh/h),'rgba(0,0,0,0)'); g.addColorStop(.8,'rgba(255,255,255,.04)'); g.addColorStop(1,'rgba(0,0,0,.12)');
+    } else if (s.flat){
+      g=c.createLinearGradient(0,s.top,0,s.bot); g.addColorStop(0,'rgba(0,0,0,.10)'); g.addColorStop(.15,'rgba(0,0,0,0)'); g.addColorStop(.7,'rgba(255,255,255,.06)'); g.addColorStop(1,'rgba(0,0,0,.14)');
+    } else {
+      g=c.createLinearGradient(0,s.top,0,s.top+h); g.addColorStop(0,'rgba(0,0,0,.30)'); g.addColorStop(.22,'rgba(0,0,0,.05)'); g.addColorStop(.55,'rgba(255,255,255,.12)'); g.addColorStop(.85,'rgba(0,0,0,.06)'); g.addColorStop(1,'rgba(0,0,0,.30)');
+    }
+    c.fillStyle=g; c.fillRect(x0,s.top,sw,h);
+    g=c.createLinearGradient(x0,0,x1,0); g.addColorStop(0,'rgba(0,0,0,.10)'); g.addColorStop(.08,'rgba(0,0,0,0)'); g.addColorStop(.92,'rgba(0,0,0,0)'); g.addColorStop(1,'rgba(0,0,0,.10)');
+    c.fillStyle=g; c.fillRect(x0,s.top,sw,h);
+    c.restore();
+  });
+
+  // общий свет: тень под карнизом и мягкое пятно света от окна, к краям темнее
+  c.save(); silhouette(); c.clip();
+  g=c.createLinearGradient(0,y0,0,y0+fh*.6); g.addColorStop(0,'rgba(0,0,0,.16)'); g.addColorStop(1,'rgba(0,0,0,0)');
+  c.fillStyle=g; c.fillRect(x0,y0,sw,fh*.6);
+  g=c.createRadialGradient(mid,y0+full*.38,0,mid,y0+full*.38,sw*.8); g.addColorStop(0,'rgba(255,255,255,.07)'); g.addColorStop(.6,'rgba(255,255,255,0)'); g.addColorStop(1,'rgba(0,0,0,.08)');
+  c.fillStyle=g; c.fillRect(x0,y0,sw,full+maxDy);
+  c.restore();
+
+  // помпоны: шарики ~4 см с шагом ~10 см
+  if (d.pompons){
+    const rr=2.1*ppc, n=Math.max(3,Math.round(sw/(10*ppc))), gap=sw/n;
+    for(let i=0;i<n;i++){
+      const x=x0+gap*(i+.5), y=yb(x), cy=y+rr*.5+rr;
+      c.strokeStyle='rgba(0,0,0,.35)'; c.lineWidth=Math.max(.6,ppc*.25); c.beginPath(); c.moveTo(x,y); c.lineTo(x,cy-rr); c.stroke();
+      c.save(); c.shadowColor='rgba(0,0,0,.25)'; c.shadowBlur=rr*.6; c.shadowOffsetY=rr*.25;
+      c.fillStyle=P.pompons; c.beginPath(); c.arc(x,cy,rr,0,Math.PI*2); c.fill(); c.restore();
+      const gr=c.createRadialGradient(x-rr*.35,cy-rr*.35,rr*.1,x,cy,rr); gr.addColorStop(0,'rgba(255,255,255,.35)'); gr.addColorStop(.6,'rgba(0,0,0,0)'); gr.addColorStop(1,'rgba(0,0,0,.28)');
+      c.fillStyle=gr; c.beginPath(); c.arc(x,cy,rr,0,Math.PI*2); c.fill();
+    }
+  }
+  if (d.tassel) drawTassel(c, mid, yb(mid), ppc, P.tassel);
+  if (d.bows){
+    const B=d.bows, g1=kantGeo(d.kants[0]);
+    let o=g1.dd+g1.kw/2;
+    if (B.at==='between'){ const g2=kantGeo(d.kants[1]); o=(o+g2.dd+g2.kw/2)/2; }
+    [x0+o,x1-o].forEach(x=>drawBow(c,x,yb(x)-B.y*ppc,B.size*ppc,P.bows,B.tail*ppc));
+  }
+
+  // карниз
+  g=c.createLinearGradient(0,y0-fr*1.2,0,y0); g.addColorStop(0,'#F4F1EE'); g.addColorStop(1,T.cornice);
+  c.fillStyle=g; c.fillRect(x0-3,y0-fr*1.2,sw+6,fr*1.25);
+
+  if (view==='light') backlight();
+
+  // На просвет: комната приглушена, а ткань светится от окна. Прошедший свет = цвет ткани × карта света:
+  // окно светлое, рама, переплёт, пруты и утяжелитель — мягкие тени (ткань рассеивает свет, поэтому края размыты).
+  function backlight(){
+    const Wd=cv.width, Hd=cv.height, layer = () => { const n=document.createElement('canvas'); n.width=Wd; n.height=Hd; return n; };
+    const snap=layer(), sc=snap.getContext('2d'); sc.drawImage(cv,0,0);
+    const map=layer(), m=map.getContext('2d'); m.setTransform(dpr,0,0,dpr,0,0);
+    m.fillStyle='#000'; m.fillRect(0,0,W,H);
+    // размытая фигура через тень: смещаем рисунок за край, а тень возвращаем на место (работает во всех браузерах)
+    const soft = (blur, color, fn) => { m.save(); m.shadowColor=color; m.shadowBlur=blur*dpr; m.shadowOffsetX=W*2*dpr; m.translate(-W*2,0); m.fillStyle=color; fn(); m.restore(); };
+    soft(ppc*6, '#fff', ()=>m.fillRect(wx,wy,ww,wh));
+    soft(ppc*4, 'rgba(0,0,0,.55)', ()=>{ m.fillRect(wx+ww/2-fr/2,wy,fr,wh); m.fillRect(wx,wy+wh*.36,ww,fr*.8); });
+    soft(ppc*.8, 'rgba(0,0,0,.45)', ()=>{ [1,2].forEach(n=>m.fillRect(x0,y0+(yF-y0)*n/3-ppc*.6,sw,ppc*1.2)); });
+    soft(ppc*.8, 'rgba(0,0,0,.6)', ()=>m.fillRect(x0,last.bot-ppc*6,sw,ppc*3));
+    // канты нашиты поверх основы: два слоя ткани пропускают меньше света
+    const keep=c, P0={...P}; c=m; Object.keys(P).forEach(p=>P[p]='rgba(0,0,0,.45)');
+    m.save(); silhouette(); m.clip(); d.kants.forEach(k=>drawKant(k,true)); m.restore();
+    Object.assign(P,P0); c=keep;
+    sc.globalCompositeOperation='multiply'; sc.drawImage(map,0,0);
+    c.save(); c.setTransform(1,0,0,1,0,0);
+    c.fillStyle='rgba(16,10,6,.5)'; c.fillRect(0,0,Wd,Hd);
+    c.setTransform(dpr,0,0,dpr,0,0); silhouette(); c.clip(); c.setTransform(1,0,0,1,0,0);
+    c.globalCompositeOperation='lighter'; c.globalAlpha=Math.min(1,LIGHT_T*1.3); c.drawImage(snap,0,0);
+    c.restore();
+  }
+}
+function drawBow(c,cx,cy,s,pat,tl){
+  const half = (dir, fn) => { c.save(); c.translate(cx,cy); c.scale(dir,1); fn(); c.restore(); };
+  const tail = () => { c.beginPath(); c.moveTo(-s*.08,s*.05); c.lineTo(-s*.5,tl); c.lineTo(-s*.32,tl-s*.16); c.lineTo(-s*.18,tl+s*.04); c.lineTo(s*.06,s*.1); c.closePath(); };
+  const loop = () => { c.beginPath(); c.moveTo(0,0); c.bezierCurveTo(-s*.95,-s*.8,-s*1.2,s*.6,0,0); };
+  c.save(); c.shadowColor='rgba(0,0,0,.28)'; c.shadowBlur=s*.3; c.shadowOffsetY=s*.1; c.fillStyle=pat;
+  [-1,1].forEach(dir=>half(dir,()=>{ tail(); c.fill(); }));
+  [-1,1].forEach(dir=>half(dir,()=>{ loop(); c.fill(); }));
+  c.restore();
+  c.strokeStyle='rgba(0,0,0,.2)'; c.lineWidth=Math.max(.6,s*.03);
+  [-1,1].forEach(dir=>half(dir,()=>{
+    tail(); c.stroke(); loop(); c.stroke();
+    c.beginPath(); c.moveTo(-s*.1,0); c.quadraticCurveTo(-s*.5,-s*.12,-s*.72,-s*.02); c.stroke();
+  }));
+  c.fillStyle=pat; c.beginPath(); c.ellipse(cx,cy,s*.17,s*.21,0,0,Math.PI*2); c.fill();
+  c.fillStyle='rgba(0,0,0,.18)'; c.fill();
+  c.fillStyle='rgba(255,255,255,.18)'; c.beginPath(); c.ellipse(cx-s*.04,cy-s*.06,s*.07,s*.08,0,0,Math.PI*2); c.fill();
+}
+function drawTassel(c,cx,cy,ppc,pat){ // кисть длиной ~18 см
+  const L=18*ppc, w=3.4*ppc;
+  const shape = () => {
+    c.beginPath();
+    c.rect(cx-w*.07,cy,w*.14,L*.14);
+    c.ellipse(cx,cy+L*.2,w*.36,L*.08,0,0,Math.PI*2);
+    c.moveTo(cx-w*.3,cy+L*.26); c.lineTo(cx+w*.3,cy+L*.26); c.lineTo(cx+w*.42,cy+L*.38); c.lineTo(cx-w*.42,cy+L*.38); c.closePath();
+    c.moveTo(cx-w*.42,cy+L*.37); c.lineTo(cx+w*.42,cy+L*.37); c.quadraticCurveTo(cx+w*.75,cy+L*.8,cx+w*.6,cy+L); c.lineTo(cx-w*.6,cy+L); c.quadraticCurveTo(cx-w*.75,cy+L*.8,cx-w*.42,cy+L*.37); c.closePath();
+  };
+  c.save(); c.shadowColor='rgba(0,0,0,.25)'; c.shadowBlur=w*.6; c.shadowOffsetY=w*.2; c.fillStyle=pat; shape(); c.fill(); c.restore();
+  const g=c.createLinearGradient(cx-w*.7,0,cx+w*.7,0); g.addColorStop(0,'rgba(0,0,0,.24)'); g.addColorStop(.42,'rgba(255,255,255,.14)'); g.addColorStop(1,'rgba(0,0,0,.26)');
+  c.fillStyle=g; shape(); c.fill();
+  c.strokeStyle='rgba(0,0,0,.16)'; c.lineWidth=Math.max(.5,w*.035);
+  for(let i=-4;i<=4;i++){ c.beginPath(); c.moveTo(cx+i*w*.09,cy+L*.4); c.lineTo(cx+i*w*.13,cy+L*.98); c.stroke(); }
+}
+/* ---------- Шаг 1: дизайны ---------- */
+function renderFilters(){
+  $('filters').innerHTML = FILTERS.map(([id,name,fn])=>{
+    const n=DESIGNS.filter(fn).length;
+    return `<label class="chip"><input type="radio" name="flt" value="${id}" ${S.filter===id?'checked':''}><span>${name} · ${n}</span></label>`;
+  }).join('');
+}
+function renderGrid(){
+  const fn=FILTERS.find(f=>f[0]===S.filter)[2];
+  const list=DESIGNS.filter(fn);
+  $('grid').innerHTML = list.map(d=>`<button type="button" class="card${d.id===S.design?' on':''}" data-design="${d.id}" aria-pressed="${d.id===S.design}">
+      <canvas data-thumb="${d.id}" aria-hidden="true"></canvas><small>№ ${d.code}${worksOf(d).length?` · ${worksOf(d).length} фото работ`:''}</small><b>${d.name}</b><span>${tagsOf(d)}</span></button>`).join('')
+    || `<p class="empty">В этой группе пока нет дизайнов.</p>`;
+  drawThumbs();
+}
+function drawThumbs(){
+  document.querySelectorAll('[data-thumb]').forEach(cv=>{
+    const d=design(cv.dataset.thumb), w={}; d.kants.forEach(k=>{ if(w[k.part]==null) w[k.part]=k.w; });
+    if (photoOf(d)) drawPhoto(cv, d, { ...S.fabrics, ...d.fabrics }, true);
+    else draw(cv, d, { ...S.fabrics, ...d.fabrics }, w, 'raised', true);
+  });
+}
+
+/* ---------- Шаг 2: ткани ---------- */
+function renderFabricsView(){
+  const d=design(S.design); linkParts(d);
+  const parts=shownParts(d);
+  if (!parts.includes(S.part)) S.part='main';
+  $('d-head').innerHTML = `<div><p class="eyebrow">Дизайн № ${d.code}</p><h2>${d.name}</h2><p class="tags">${tagsOf(d)}</p></div>
+    <a class="link" href="#designs">Сменить дизайн</a>`;
+  renderWorks(); renderParts(); renderEditor(); redraw();
+  syncView();
+  $('bar-title').textContent = `№ ${d.code} · ${d.name}`;
+  updateNote();
+}
+function renderParts(){
+  const parts=shownParts(design(S.design));
+  $('parts').innerHTML = parts.map(p=>{ const f=fab(S.fabrics[p]), on=p===S.part;
+    return `<button type="button" class="part${on?' on':''}" data-part="${p}" role="tab" aria-selected="${on}">
+      <i style="background-image:url(${swatch(f)})"></i><span><b>${label(p,true)}</b><small>${f.name}${S.widths[p]!=null && !photoMode(design(S.design))?' · '+cm(S.widths[p]):''}</small></span></button>`; }).join('');
+}
+function renderEditor(){
+  const p=S.part, f=fab(S.fabrics[p]), col=S.browse[p] || f.col, photo=photoMode(design(S.design)), isKant=S.widths[p]!=null && !photo;
+  const collection=COLLECTIONS.find(c=>c.id===col);
+  $('editor').innerHTML = `
+    <div class="ed-head"><div><h3>${label(p)}</h3><p>Выбрано: ${fabLabel(f)}</p></div>
+      <button type="button" class="zoom-btn" data-zoom aria-label="Рассмотреть ткань ${fabLabel(f)} крупно"><i style="background-image:url(${f.zoom})"></i>Ткань вблизи</button></div>
+    ${isKant?`<div class="width">
+      <div class="width-top"><label for="w-range">Ширина канта</label>
+        <div class="stepper"><button type="button" data-w="-0.5" aria-label="Уже на 0,5 см">−</button><output id="w-out" for="w-range">${cm(S.widths[p])}</output><button type="button" data-w="0.5" aria-label="Шире на 0,5 см">+</button></div></div>
+      <input type="range" id="w-range" min="1" max="12" step="0.5" value="${S.widths[p]}">
+      <small>От 1 до 12 см. Превью показывает ширину в масштабе шторы 140 см.</small></div>`:''}
+    ${photo && S.widths[p]!=null?`<p class="note">На фото ширина канта как у образца. Чтобы изменить её, переключите превью на «Схему».</p>`:''}
+    <div class="chips scroll" role="radiogroup" aria-label="Тип ткани">${COLLECTIONS.map(c=>`<label class="chip"><input type="radio" name="col" value="${c.id}" ${c.id===col?'checked':''}><span>${c.name}</span></label>`).join('')}</div>
+    <div class="fabrics">${collection.items.map(([n])=>{ const x=fab(`${col}-${n}`), on=x.id===f.id;
+      return `<button type="button" class="fab${on?' on':''}" data-fab="${x.id}" aria-pressed="${on}"><i style="background-image:url(${swatch(x)})"></i><span>${x.name}</span></button>`; }).join('')}</div>
+    ${p!=='main'?`<button type="button" class="link" data-same>Взять основную ткань</button>`:''}`;
+}
+function syncView(){
+  const d=design(S.design), photo=photoMode(d);
+  document.querySelectorAll('[data-view],[data-mode]').forEach(b=>{ const on=b.dataset.view===S.view || b.dataset.mode===(S.photo?'photo':'scheme'); b.classList.toggle('on',on); b.setAttribute('aria-pressed',on); });
+  $('seg-mode').hidden = !photoOf(d); $('seg-view').hidden = photo;
+  $('light-note').hidden = photo || S.view!=='light';
+}
+function redraw(){
+  if (route()==='fabrics'){
+    const d=design(S.design);
+    if (photoMode(d)) drawPhoto($('cv'), d, S.fabrics, false);
+    else draw($('cv'), d, S.fabrics, S.widths, S.view, false);
+  }
+  else drawThumbs();
+}
+function setWidth(v){
+  v=Math.min(12,Math.max(1,Math.round(v*2)/2)); S.widths[S.part]=v;
+  $('w-out').textContent=cm(v); $('w-range').value=v;
+  renderParts(); redraw();
+}
+
+/* ---------- Навигация ---------- */
+const route = () => location.hash==='#fabrics' ? 'fabrics' : 'designs';
+function show(){
+  const r=route();
+  $('view-designs').hidden = r!=='designs'; $('view-fabrics').hidden = r!=='fabrics'; $('bar').hidden = r!=='fabrics';
+  $('tab-designs').classList.toggle('on',r==='designs'); $('tab-fabrics').classList.toggle('on',r==='fabrics');
+  $('tab-designs').toggleAttribute('aria-current',r==='designs'); $('tab-fabrics').toggleAttribute('aria-current',r==='fabrics');
+  if (r==='designs'){ renderFilters(); renderGrid(); } else renderFabricsView();
+  window.scrollTo(0,0);
+}
+
+/* ---------- События ---------- */
+document.addEventListener('click', e=>{
+  const t=e.target.closest('button'); if(!t) return;
+  const ds=t.dataset;
+  if (ds.design){ if (S.design!==ds.design){ S.design=ds.design; resetWidths(); S.part='main'; Object.assign(S.fabrics, design(S.design).fabrics); } location.hash='fabrics'; return; }
+  if (ds.part){ S.part=ds.part; renderParts(); renderEditor(); return; }
+  if (ds.fab){ S.fabrics[S.part]=ds.fab; delete S.browse[S.part]; linkParts(design(S.design)); renderParts(); renderEditor(); redraw(); updateNote(); return; }
+  if (ds.same!==undefined){ S.fabrics[S.part]=S.fabrics.main; delete S.browse[S.part]; linkParts(design(S.design)); renderParts(); renderEditor(); redraw(); updateNote(); return; }
+  if (ds.w){ setWidth(S.widths[S.part]+Number(ds.w)); return; }
+  if (ds.view){ S.view=ds.view; syncView(); redraw(); return; }
+  if (ds.mode){ S.photo=ds.mode==='photo'; renderFabricsView(); return; }
+  if (t.id==='bar-back'){ location.hash='designs'; return; }
+  if (t.id==='bar-send'){ openOrder(); return; }
+  if (ds.close!==undefined){ closeOrder(); return; }
+  if (ds.work){ openWork(Number(ds.work)); return; }
+  if (ds.lbstep){ stepWork(Number(ds.lbstep)); return; }
+  if (ds.lbclose!==undefined){ closeWork(); return; }
+  if (ds.zoom!==undefined){ openFab(); return; }
+  if (ds.fview){ lbView=ds.fview; showWork(); return; }
+  if (ds.lbpick){ S.fabrics[S.part]=ds.lbpick; delete S.browse[S.part]; linkParts(design(S.design)); renderParts(); renderEditor(); redraw(); updateNote(); showWork(); return; }
+});
+document.addEventListener('change', e=>{
+  const t=e.target;
+  if (t.name==='flt'){ S.filter=t.value; renderGrid(); }
+  if (t.name==='col'){ S.browse[S.part]=t.value; renderEditor(); }
+});
+document.addEventListener('input', e=>{ if (e.target.id==='w-range') setWidth(Number(e.target.value)); });
+function updateNote(){ const parts=shownParts(design(S.design)); $('bar-note').textContent = parts.map(p=>`${label(p,true)}: ${fab(S.fabrics[p]).name.toLowerCase()}`).join(' · '); }
+
+/* ---------- Отправка дизайна ---------- */
+let lastFocus=null, msg='';
+function summaryRows(){
+  const d=design(S.design);
+  return [['Дизайн',`№ ${d.code} · ${d.name}`], ...partsOf(d).map(p=>[label(p), fabLabel(fab(S.fabrics[p]))+(S.widths[p]!=null?`, ширина ${cm(S.widths[p])}`:'')])];
+}
+// Заявка уходит менеджеру в мессенджер клиента: ссылка открывает чат с номером ателье и готовым текстом.
+// Telegram не умеет подставлять текст по номеру — его копируем в буфер, клиенту остаётся вставить.
+const PHONE='79064473903', PHONE_SHOW='+7 906 447-39-03';
+const MESSENGERS = [
+  { id:'wa', name:'WhatsApp', url:t=>`https://wa.me/${PHONE}?text=${encodeURIComponent(t)}` },
+  { id:'tg', name:'Telegram', url:()=>`https://t.me/+${PHONE}`, paste:true },
+  { id:'vb', name:'Viber', url:t=>`viber://chat?number=%2B${PHONE}&draft=${encodeURIComponent(t)}` },
+  { id:'sms', name:'SMS', url:t=>`sms:+${PHONE}?&body=${encodeURIComponent(t)}` },
+];
+function orderText(){
+  const cmt=($('o-comment')?.value||'').trim();
+  return ['Здравствуйте! Хочу римскую штору по дизайну из конструктора:', ...summaryRows().map(([a,b])=>`${a}: ${b}`), ...(cmt?[`Комментарий: ${cmt}`]:[])].join('\n');
+}
+function openOrder(){
+  lastFocus=document.activeElement;
+  $('sheet').innerHTML = `<div class="sheet-head"><div><p class="eyebrow">Ваш дизайн</p><h2 id="order-title">Отправить менеджеру</h2></div><button class="x" data-close aria-label="Закрыть">✕</button></div>
+    <ul class="sum-list">${summaryRows().map(([a,b])=>`<li><span>${a}</span><span>${b}</span></li>`).join('')}</ul>
+    <div class="form">
+      <div><label for="o-comment">Размер окна или комментарий</label><textarea class="in" id="o-comment" placeholder="Например: окно 150 × 160 см, нужен замер"></textarea></div>
+      <div><p class="legend">Отправить через</p>
+        <div class="msgrs">${MESSENGERS.map(m=>`<a class="btn msgr" data-msgr="${m.id}" href="${m.url(orderText())}" target="_blank" rel="noopener">${m.name}</a>`).join('')}</div></div>
+      <p class="note" id="o-note">Откроется чат с менеджером, текст с вашим дизайном уже будет набран — останется нажать «Отправить». Для Telegram текст копируется, вставьте его в чат.</p>
+      <a class="link call" href="tel:+${PHONE}">Или позвоните: ${PHONE_SHOW}</a>
+    </div>`;
+  $('order').hidden=false; document.body.style.overflow='hidden'; $('o-comment').focus();
+  $('sheet').querySelectorAll('[data-msgr]').forEach(el=>el.addEventListener('click', ()=>{
+    const m=MESSENGERS.find(x=>x.id===el.dataset.msgr), t=orderText(); msg=t;
+    el.href=m.url(t);
+    try { navigator.clipboard.writeText(t).catch(()=>{}); } catch(_){}
+    if (m.paste) $('o-note').textContent='Текст скопирован. Откройте чат в Telegram и вставьте его — долгое нажатие → «Вставить».';
+  }));
+}
+function closeOrder(){ $('order').hidden=true; document.body.style.overflow=''; lastFocus&&lastFocus.focus&&lastFocus.focus(); }
+$('order').addEventListener('click', e=>{ if (e.target.id==='order') closeOrder(); });
+document.addEventListener('keydown', e=>{
+  if (e.key==='Escape' && !$('order').hidden) closeOrder();
+  if (!$('lb').hidden){ if (e.key==='Escape') closeWork(); if (e.key==='ArrowLeft') stepWork(-1); if (e.key==='ArrowRight') stepWork(1); }
+});
+
+/* ---------- Просмотр готовых работ ---------- */
+function renderWorks(){
+  const list=worksOf(design(S.design));
+  $('works').innerHTML = `<div class="works-head"><h3>Готовые работы</h3>${list.length?`<span>${list.length} фото</span>`:''}</div>` + (list.length
+    ? `<div class="works-row">${list.map((src,i)=>`<button type="button" class="work" data-work="${i}" style="background-image:url(${thumbOf(src)})" aria-label="Открыть фото ${i+1} из ${list.length}"></button>`).join('')}</div>`
+    : `<p>Фото штор, сшитых в этом дизайне, скоро появятся.</p>`);
+}
+let lbIdx=0, lbFocus=null, lbFab=false, lbView='zoom';  // zoom — фрагмент ткани, orig — исходное фото образца
+// тот же просмотрщик показывает ткани вблизи: листаем коллекцию, кнопкой выбираем ткань для текущей части
+const lbFabs = () => FABRICS.filter(x=>x.col===fab(S.fabrics[S.part]).col);
+function showWork(){
+  $('lb').classList.toggle('fabzoom', lbFab); $('lb').classList.toggle('orig', lbFab && lbView==='orig');
+  $('lb-pick').hidden=$('lb-seg').hidden=!lbFab;
+  document.querySelectorAll('[data-fview]').forEach(b=>{ const on=b.dataset.fview===lbView; b.classList.toggle('on',on); b.setAttribute('aria-pressed',on); });
+  $('lb').setAttribute('aria-label', lbFab?'Ткань вблизи':'Готовые работы');
+  if (lbFab){
+    const list=lbFabs(); lbIdx=(lbIdx+list.length)%list.length;
+    const f=list[lbIdx], on=f.id===S.fabrics[S.part];
+    $('lb-img').src=lbView==='orig'?f.orig:f.zoom;
+    $('lb-img').alt=lbView==='orig'?`Образец ткани ${fabLabel(f)}, исходное фото`:`Ткань ${fabLabel(f)} крупно`;
+    $('lb-cap').textContent=lbView==='orig'?`${fabLabel(f)} · фото образца без обработки`:`${fabLabel(f)} · фрагмент ≈ ${Math.round(f.cm)} × ${Math.round(f.cm)} см`;
+    $('lb-prev').hidden=$('lb-next').hidden=false;
+    $('lb-pick').textContent=on?'Выбрано':`Выбрать для «${label(S.part,true)}»`; $('lb-pick').disabled=on; $('lb-pick').dataset.lbpick=f.id;
+    return;
+  }
+  const d=design(S.design), list=worksOf(d);
+  lbIdx=(lbIdx+list.length)%list.length;
+  $('lb-img').src=list[lbIdx]; $('lb-img').alt=`Готовая штора в дизайне «${d.name}», фото ${lbIdx+1}`;
+  $('lb-cap').textContent=`№ ${d.code} · ${d.name} · ${lbIdx+1} из ${list.length}`;
+  $('lb-prev').hidden=$('lb-next').hidden=list.length<2;
+}
+function openFab(){ lbFab=true; lbFocus=document.activeElement; lbIdx=lbFabs().findIndex(x=>x.id===S.fabrics[S.part]); showWork(); $('lb').hidden=false; document.body.style.overflow='hidden'; $('lb-x').focus(); }
+function openWork(i){ lbFab=false; lbFocus=document.activeElement; lbIdx=i; showWork(); $('lb').hidden=false; document.body.style.overflow='hidden'; $('lb-x').focus(); }
+function stepWork(n){ lbIdx+=n; showWork(); }
+function closeWork(){ $('lb').hidden=true; document.body.style.overflow=''; lbFocus&&lbFocus.focus&&lbFocus.focus(); }
+$('lb').addEventListener('click', e=>{ if (e.target.id==='lb') closeWork(); });
+let lbX=null;
+$('lb').addEventListener('touchstart', e=>{ lbX=e.touches[0].clientX; }, { passive:true });
+$('lb').addEventListener('touchend', e=>{ if (lbX==null) return; const dx=e.changedTouches[0].clientX-lbX; lbX=null; if (Math.abs(dx)>40) stepWork(dx<0?1:-1); });
+
+/* ---------- Запуск ---------- */
+window.addEventListener('hashchange', show);
+show();
+if ('ResizeObserver' in window){ let raf; new ResizeObserver(()=>{ cancelAnimationFrame(raf); raf=requestAnimationFrame(redraw); }).observe(document.body); }
+matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', redraw);
+new MutationObserver(redraw).observe(document.documentElement, { attributes:true, attributeFilter:['data-theme'] });
+</script>
+
+</body>
+</html>
