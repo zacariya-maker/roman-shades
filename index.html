@@ -122,7 +122,7 @@ h3{font-size:15px;font-weight:600;margin:0}
 .panel{min-width:0;display:flex;flex-direction:column;gap:22px}
 /* ---------- Телефон: конструктор на одном экране ----------
    штора на всю свободную высоту, под ней вкладки частей и строка тканей; свайпы по шторе — дизайн и цвета */
-.m-dock,.m-toast{display:none}
+.m-dock,.m-toast,.m-width{display:none}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media (max-width:560px){
   .product{padding-top:0}
@@ -138,10 +138,12 @@ h3{font-size:15px;font-weight:600;margin:0}
   .m-tab.on{border-color:var(--fg);box-shadow:inset 0 0 0 1px var(--fg)}
   .m-zoom{margin-left:auto;padding:0 12px}
   .m-row{display:flex;align-items:center;gap:8px;min-width:0}
-  .m-width{display:flex;align-items:center;gap:6px;min-width:0;height:30px;padding:0 4px 0 12px;border:1px solid var(--line);border-radius:999px}
+  .m-width{position:absolute;left:8px;right:8px;bottom:10px;display:flex;align-items:center;gap:6px;min-width:0;height:34px;padding:0 4px 0 12px;border-radius:999px;background:rgba(255,255,255,.8);color:#3A211A;backdrop-filter:blur(6px)}
+  .m-width[hidden]{display:none}
   .m-width label{flex:none;font-size:12px;font-weight:500;white-space:nowrap}
   .m-width input{flex:1;min-width:0;accent-color:var(--fg)}
-  .m-width button{flex:none;width:24px;height:24px;border:0;border-radius:50%;background:var(--soft);color:var(--fg);font-size:15px;line-height:1;cursor:pointer}
+  .m-width input{accent-color:#3A211A}
+  .m-width button{flex:none;width:26px;height:26px;border:0;border-radius:50%;background:rgba(58,33,26,.08);color:#3A211A;font-size:15px;line-height:1;cursor:pointer}
   .m-width output{flex:none;width:54px;text-align:right;padding-right:8px;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
   .m-col{flex:none;position:relative}
   .m-col select{appearance:none;-webkit-appearance:none;height:30px;max-width:112px;padding:0 24px 0 10px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--fg);font:inherit;font-size:12px;font-weight:500;text-overflow:ellipsis}
@@ -304,6 +306,7 @@ pre.msg{white-space:pre-wrap;word-break:break-word;background:var(--soft);border
         </div>
         <button type="button" class="size-chip" id="size-chip" data-sizes></button>
         <p class="m-toast" id="m-toast" aria-live="polite"></p>
+        <div class="m-width" id="m-width" hidden></div>
         <p class="light-note" id="light-note" hidden>Светопропускаемость около 50%: ткань мягко рассеивает дневной свет, но не затемняет комнату полностью. Это не блэкаут.</p>
       </div>
       <div class="m-dock" id="m-dock"></div>
@@ -610,7 +613,7 @@ function draw(cv, d, fabrics, widths, view, thumb){
   c.fillStyle=g; c.fillRect(0,0,W,H);
 
   // окно 140 × 210
-  const band=SEG_BAND(W,thumb), Ha=H-band*2;  // в схеме кнопки и сверху, и снизу
+  const band=SEG_BAND(W,thumb), Ha=H-band-(band && !$('m-width').hidden ? band : 0);  // снизу — место под ширину канта
   const r=140/210, maxW=W*(thumb?.62:band?.66:.54), maxH=Ha*(band?.78:.72);
   const ww=Math.min(maxW,maxH*r), wh=ww/r, wx=(W-ww)/2, wy=band+Ha*(band?.09:.12);
   const fr=Math.max(3,Math.min(10,ww*.035));
@@ -889,12 +892,14 @@ function renderDock(){
   const list=FABRICS.filter(x=>x.col===(S.browse[p] || f.col)), wp=photoMode(d) ? null : widthPart(d);
   $('m-dock').innerHTML = `<div class="m-tabs" role="tablist" aria-label="Части шторы">${shownParts(d).map(q=>`<button type="button" class="m-tab${q===p?' on':''}" data-part="${q}" role="tab" aria-selected="${q===p}"><i style="background-image:url(${swatch(fab(S.fabrics[q]))})"></i>${label(q,true)}</button>`).join('')}
       <button type="button" class="m-tab m-zoom" data-zoom aria-label="Рассмотреть ткань ${fabLabel(f)} крупно">Вблизи</button></div>
-    ${wp?`<div class="m-width"><label for="m-w-range">${shownParts(d).filter(q=>S.widths[q]!=null).length>1 ? label(wp,true) : 'Ширина канта'}</label>
-      <button type="button" data-mw="-0.5" aria-label="Уже на 0,5 см">−</button>
-      <input type="range" id="m-w-range" data-part="${wp}" min="1" max="12" step="0.5" value="${S.widths[wp]}">
-      <button type="button" data-mw="0.5" aria-label="Шире на 0,5 см">+</button><output id="m-w-out" for="m-w-range">${cm(S.widths[wp])}</output></div>`:''}
     <div class="m-row"><label class="m-col"><span class="sr">Каталог тканей</span><select name="col" aria-label="Каталог тканей">${colOptions(S.browse[p] || f.col)}</select></label>
     <div class="m-strip" data-part="${p}">${list.map(x=>`<button type="button" class="m-sw${x.id===f.id?' on':''}" data-fab="${x.id}" aria-pressed="${x.id===f.id}"><i style="background-image:url(${swatch(x)})"></i>${x.name.replace('№ ','')}</button>`).join('')}</div></div>`;
+  // ширина канта — внизу превью, только в «Схеме»
+  $('m-width').hidden=!wp;
+  $('m-width').innerHTML = wp ? `<label for="m-w-range">${shownParts(d).filter(q=>S.widths[q]!=null).length>1 ? label(wp,true) : 'Ширина канта'}</label>
+      <button type="button" data-mw="-0.5" aria-label="Уже на 0,5 см">−</button>
+      <input type="range" id="m-w-range" data-part="${wp}" min="1" max="12" step="0.5" value="${S.widths[wp]}">
+      <button type="button" data-mw="0.5" aria-label="Шире на 0,5 см">+</button><output id="m-w-out" for="m-w-range">${cm(S.widths[wp])}</output>` : '';
   const strip=document.querySelector('.m-strip'), on=strip.querySelector('.on');
   // выбранная ткань всегда по центру строки; при смене ткани строка плавно доезжает от прежнего места
   if (keep!=null) strip.scrollLeft=keep;
@@ -946,8 +951,10 @@ function swipeHint(){
 function syncView(){
   const d=design(S.design), photo=photoMode(d);
   document.querySelectorAll('[data-view],[data-mode]').forEach(b=>{ const on=b.dataset.view===S.view || b.dataset.mode===(S.photo?'photo':'scheme'); b.classList.toggle('on',on); b.setAttribute('aria-pressed',on); });
-  $('seg-mode').hidden = !photoOf(d); $('seg-view').hidden = photo;
-  $('light-note').hidden = photo || S.view!=='light';
+  // кнопки «Приподнята / Опущена / На просвет» пока убраны — штора всегда приподнята
+  S.view='raised';
+  $('seg-mode').hidden = !photoOf(d); $('seg-view').hidden = true;
+  $('light-note').hidden = true;
 }
 function redraw(){
   if (route()==='fabrics'){
