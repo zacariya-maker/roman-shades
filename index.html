@@ -120,6 +120,15 @@ h3{font-size:15px;font-weight:600;margin:0}
 }
 .light-note{position:absolute;left:12px;right:12px;bottom:18px;margin:0;padding:7px 12px;border-radius:12px;background:rgba(255,255,255,.82);color:#3A211A;font-size:12px;line-height:1.35;text-align:center;backdrop-filter:blur(6px)}
 .panel{min-width:0;display:flex;flex-direction:column;gap:22px}
+/* телефон: низкая шапка — больше места шторе */
+@media (max-width:560px){
+  :root{--head-h:46px}
+  .logo{font-size:15px;white-space:nowrap}
+  .logo small{font-size:9px}
+  .tabs{padding:3px}
+  .tabs a{padding:5px 10px 5px 5px;font-size:13px;gap:5px}
+  .tabs a i{width:18px;height:18px;font-size:10px}
+}
 /* ---------- Телефон: конструктор на одном экране ----------
    штора на всю свободную высоту, под ней вкладки частей и строка тканей; свайпы по шторе — дизайн и цвета */
 .m-dock,.m-toast,.m-width{display:none}
@@ -138,17 +147,17 @@ h3{font-size:15px;font-weight:600;margin:0}
   .m-tab.on{border-color:var(--fg);box-shadow:inset 0 0 0 1px var(--fg)}
   .m-zoom{margin-left:auto;padding:0 12px}
   .m-row{display:flex;align-items:center;gap:8px;min-width:0}
-  .m-width{position:absolute;left:8px;right:8px;bottom:8px;display:flex;align-items:center;gap:4px;min-width:0;height:42px;padding:0 4px 0 12px;border-radius:999px;background:rgba(255,255,255,.8);color:#3A211A;backdrop-filter:blur(6px)}
+  .m-width{position:absolute;left:8px;right:8px;bottom:8px;display:flex;align-items:center;gap:4px;min-width:0;height:30px;padding:0 3px 0 10px;border-radius:999px;background:rgba(255,255,255,.8);color:#3A211A;backdrop-filter:blur(6px)}
   .m-width[hidden]{display:none}
   .m-width label{flex:none;font-size:12px;font-weight:500;white-space:nowrap}
   .m-width input{flex:1;min-width:0;accent-color:var(--fg)}
   /* крупный ползунок: удобно тянуть пальцем */
-  .m-width input{-webkit-appearance:none;appearance:none;height:34px;background:transparent;margin:0}
+  .m-width input{-webkit-appearance:none;appearance:none;height:28px;background:transparent;margin:0}
   .m-width input::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:rgba(58,33,26,.22)}
   .m-width input::-moz-range-track{height:4px;border-radius:2px;background:rgba(58,33,26,.22)}
-  .m-width input::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;margin-top:-11px;border-radius:50%;background:#3A211A;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.25)}
-  .m-width input::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#3A211A;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.25)}
-  .m-width button{flex:none;width:34px;height:34px;border:0;border-radius:50%;background:rgba(58,33,26,.08);color:#3A211A;font-size:18px;line-height:1;cursor:pointer}
+  .m-width input::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;margin-top:-8px;border-radius:50%;background:#3A211A;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+  .m-width input::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#3A211A;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+  .m-width button{flex:none;width:24px;height:24px;border:0;border-radius:50%;background:rgba(58,33,26,.08);color:#3A211A;font-size:15px;line-height:1;cursor:pointer}
   .m-width output{flex:none;width:46px;text-align:right;padding-right:6px;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
   .m-col{flex:none;position:relative}
   .m-col select{appearance:none;-webkit-appearance:none;height:30px;max-width:112px;padding:0 24px 0 10px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--fg);font:inherit;font-size:12px;font-weight:500;text-overflow:ellipsis}
