@@ -95,6 +95,7 @@ h3{font-size:15px;font-weight:600;margin:0}
   .seg.left{left:8px}
   #seg-view{top:auto;bottom:10px;right:50%;transform:translateX(50%)}
   .seg button{padding:5px 9px;font-size:11.5px;min-height:26px;white-space:nowrap}
+  .stage canvas{height:clamp(300px,56vh,560px)}
   .stage .light-note{bottom:50px;left:8px;right:8px;font-size:11px;padding:6px 10px}
 }
 .light-note{position:absolute;left:12px;right:12px;bottom:18px;margin:0;padding:7px 12px;border-radius:12px;background:rgba(255,255,255,.82);color:#3A211A;font-size:12px;line-height:1.35;text-align:center;backdrop-filter:blur(6px)}
@@ -473,7 +474,7 @@ function drawPhoto(cv, d, fabrics, thumb){
   if (cv._t0){ fade=Math.min(1,(performance.now()-cv._t0)/300); if (fade<1) requestAnimationFrame(redraw); else cv._t0=0; }
   const im=set.main, ik=set.kant;
   const band=SEG_BAND(W,thumb), Ha=H-band;
-  const pad=thumb?.06:.07, s=Math.min(W*(1-2*pad)/im.naturalWidth, Ha*(1-2*pad)/im.naturalHeight);
+  const pad=thumb?.06:band?.035:.07, s=Math.min(W*(1-2*pad)/im.naturalWidth, Ha*(1-2*pad)/im.naturalHeight);
   const dw=im.naturalWidth*s, dh=im.naturalHeight*s, dx=(W-dw)/2, dy=band+(Ha-dh)/2;
   // слой ткани: светотень × цвет ткани × 255/200, затем возвращаем прозрачность слоя
   const tint = (img, color) => {
@@ -532,6 +533,7 @@ const PROFILES = {
 };
 
 function draw(cv, d, fabrics, widths, view, thumb){
+  cv._key=null;  // холст перерисован схемой — фото потом нужно рисовать заново
   const W=cv.clientWidth, H=cv.clientHeight; if(!W||!H) return;
   const dpr=Math.min(2, window.devicePixelRatio||1);
   cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr);
@@ -542,8 +544,8 @@ function draw(cv, d, fabrics, widths, view, thumb){
 
   // окно 140 × 210
   const band=SEG_BAND(W,thumb), Ha=H-band*2;  // в схеме кнопки и сверху, и снизу
-  const r=140/210, maxW=W*(thumb?.62:.54), maxH=Ha*.72;
-  const ww=Math.min(maxW,maxH*r), wh=ww/r, wx=(W-ww)/2, wy=band+Ha*.12;
+  const r=140/210, maxW=W*(thumb?.62:band?.66:.54), maxH=Ha*(band?.78:.72);
+  const ww=Math.min(maxW,maxH*r), wh=ww/r, wx=(W-ww)/2, wy=band+Ha*(band?.09:.12);
   const fr=Math.max(3,Math.min(10,ww*.035));
   c.fillStyle=T.frame; c.fillRect(wx-fr,wy-fr,ww+2*fr,wh+2*fr);
   g=c.createLinearGradient(0,wy,0,wy+wh); g.addColorStop(0,T.glass1); g.addColorStop(1,T.glass2);
