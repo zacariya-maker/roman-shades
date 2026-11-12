@@ -538,7 +538,7 @@ function linkParts(d){ const p=photoOf(d); if (!p || !S.photo) return; Object.en
 // два общих холста для перекраски слоёв: создаём один раз, а не на каждую перерисовку
 const TINT=[document.createElement('canvas'), document.createElement('canvas')];
 // высота верхней полосы под кнопками превью на телефоне — штору в неё не рисуем
-const SEG_BAND = (W, thumb) => !thumb && innerWidth<=560 ? 40 : 0;
+const SEG_BAND = (W, thumb) => thumb ? 0 : innerWidth<=560 ? 40 : 56;
 function drawPhoto(cv, d, fabrics, thumb){
   const W=cv.clientWidth, H=cv.clientHeight; if(!W||!H) return;
   const dpr=Math.min(2, window.devicePixelRatio||1), T=tokens();
@@ -626,17 +626,13 @@ function draw(cv, d, fabrics, widths, view, thumb){
   let g=c.createLinearGradient(0,0,0,H); g.addColorStop(0,T.wall); g.addColorStop(1,T.wall2);
   c.fillStyle=g; c.fillRect(0,0,W,H);
 
-  // окно 140 × 210
-  const band=SEG_BAND(W,thumb), Ha=H-band-(band && !$('m-width').hidden ? band : 0);  // снизу — место под ширину канта
-  const r=140/210, maxW=W*(thumb?.62:band?.66:.54), maxH=Ha*(band?.78:.72);
-  const ww=Math.min(maxW,maxH*r), wh=ww/r, wx=(W-ww)/2, wy=band+Ha*(band?.09:.12);
+  // штора 140 × 210 без окна: подбираем размер так, чтобы штора вместе с низом и декором
+  // (фигурный край, рюши, кисть, помпоны) заняла всё превью
+  const band=SEG_BAND(W,thumb), Ha=H-band-(innerWidth<=560 && !$('m-width').hidden ? band : band*.4);  // снизу — место под ширину канта на телефоне
+  const r=140/210, extraCm=d.depth+(d.ruffle||0)+(d.tassel?24:0)+(d.pompons?7:0);
+  const fit=thumb?.86:.9, ww=Math.min(W*(thumb?.72:.8), Ha*fit/(.9/r+extraCm/SHADE_CM)), wh=ww/r;
+  const shownH=ww*(.9/r+extraCm/SHADE_CM), wx=(W-ww)/2, wy=band+(Ha-shownH)/2+ww*.02;
   const fr=Math.max(3,Math.min(10,ww*.035));
-  c.fillStyle=T.frame; c.fillRect(wx-fr,wy-fr,ww+2*fr,wh+2*fr);
-  g=c.createLinearGradient(0,wy,0,wy+wh); g.addColorStop(0,T.glass1); g.addColorStop(1,T.glass2);
-  c.fillStyle=g; c.fillRect(wx,wy,ww,wh);
-  c.fillStyle=T.frame; c.fillRect(wx+ww/2-fr/2,wy,fr,wh); c.fillRect(wx,wy+wh*.36,ww,fr*.8);
-  c.fillRect(wx-fr*3,wy+wh+fr,ww+fr*6,fr*1.6);
-  c.fillStyle='rgba(0,0,0,.09)'; c.fillRect(wx-fr*3,wy+wh+fr*2.6,ww+fr*6,fr*.6);
 
   // геометрия: ровное полотно, складки (если приподнята) и нижняя часть высотой hem
   const pad=fr*1.6, x0=wx-pad, x1=wx+ww+pad, sw=x1-x0, y0=wy-pad, full=wh+pad*2, mid=(x0+x1)/2;
