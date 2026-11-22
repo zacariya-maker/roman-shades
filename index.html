@@ -92,6 +92,15 @@ h3{font-size:15px;font-weight:600;margin:0}
 .size-chip.empty{background:#3A211A;color:#fff}
 .size-chip svg{width:14px;height:14px;flex:none}
 @media (max-width:560px){.size-chip{top:14px;right:8px;height:30px;padding:0 10px;font-size:11.5px}}
+.big-btn{position:absolute;top:58px;right:10px;width:36px;height:36px;display:grid;place-items:center;border:0;border-radius:50%;background:rgba(255,255,255,.75);color:#2a1d18;cursor:pointer;backdrop-filter:blur(6px)}
+.big-btn svg{width:18px;height:18px}
+@media (max-width:560px){.big-btn{top:50px;right:8px;width:32px;height:32px}}
+.ov.zv{background:rgba(20,12,10,.95);padding:0}
+.zv-area{position:absolute;inset:0;overflow:hidden;touch-action:none;cursor:grab}
+.zv-area:active{cursor:grabbing}
+#zv-img{position:absolute;left:0;top:0;max-width:none;transform-origin:0 0;user-select:none;-webkit-user-drag:none;pointer-events:none}
+.seg.zv-seg{top:calc(12px + env(safe-area-inset-top,0px));left:12px;right:auto}
+.zv .lb-cap{pointer-events:none;opacity:.8;font-size:13px}
 #bar-send .sm{display:none}
 @media (max-width:560px){#bar-send .sm{display:inline}}
 .bar-sum{border:0;background:none;padding:0;text-align:left;color:var(--fg);font:inherit;cursor:pointer}
@@ -319,6 +328,7 @@ pre.msg{white-space:pre-wrap;word-break:break-word;background:var(--soft);border
           <button type="button" data-view="light">На просвет</button>
         </div>
         <button type="button" class="size-chip" id="size-chip" data-sizes></button>
+        <button type="button" class="big-btn" data-big aria-label="Рассмотреть штору крупно"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M12.5 12.5L17 17M8.5 6v5M6 8.5h5"/></svg></button>
         <p class="m-toast" id="m-toast" aria-live="polite"></p>
         <div class="m-width" id="m-width" hidden></div>
         <p class="light-note" id="light-note" hidden>Светопропускаемость около 50%: ткань мягко рассеивает дневной свет, но не затемняет комнату полностью. Это не блэкаут.</p>
@@ -350,6 +360,13 @@ pre.msg{white-space:pre-wrap;word-break:break-word;background:var(--soft);border
   <p class="lb-cap" id="lb-cap"></p>
   <button type="button" class="lb-pick" id="lb-pick" data-lbpick hidden></button>
   <div class="seg lb-seg" id="lb-seg" hidden role="group" aria-label="Как показать ткань"><button type="button" data-fview="zoom">Крупно</button><button type="button" data-fview="orig">Целиком</button></div>
+</div>
+
+<div class="ov zv" id="zv" hidden role="dialog" aria-modal="true" aria-label="Штора крупно">
+  <div class="zv-area" id="zv-area"><img id="zv-img" alt=""></div>
+  <div class="seg zv-seg" role="group" aria-label="Что показать"><button type="button" data-zvgo="fit">Целиком</button><button type="button" data-zvgo="bottom">Низ крупно</button></div>
+  <button type="button" class="lb-btn lb-x" data-zvclose aria-label="Закрыть">✕</button>
+  <p class="lb-cap">Приближайте двумя пальцами или колёсиком, двигайте штору пальцем</p>
 </div>
 
 <div class="ov" id="order" hidden role="dialog" aria-modal="true" aria-labelledby="order-title">
@@ -652,6 +669,7 @@ function drawPhoto(cv, d, fabrics, thumb){
   const xp=(photoOf(d).parts||[])[2], ix=set.extra;
   if (xp && loaded(ix)) c.drawImage(tint(ix, fab(fabrics[xp]).color),dx,dy,dw,dh);
   if (tr.tile && bot) drawTrim(c, tr, dx+bot[0]*dw, dx+bot[1]*dw, dy+bot[2]*dh, pcm*s);
+  cv._bot=(dy+(bot ? bot[2]*dh : dh*.96))/H;  // низ шторы, доля высоты — для просмотра «Низ крупно»
 }
 
 /* ---------- Готовые работы ---------- */
@@ -847,6 +865,7 @@ function draw(cv, d, fabrics, widths, view, thumb){
   }
   if (d.tassel) drawTassel(c, mid, yb(mid), ppc, P.tassel);
   drawTrim(c, trimOf(d, fabrics), x0, x1, yb(mid), ppc);
+  cv._bot=yb(mid)/H;
   if (d.bows){
     const B=d.bows, g1=kantGeo(d.kants[0]);
     let o=g1.dd+g1.kw/2;
@@ -1101,6 +1120,9 @@ document.addEventListener('click', e=>{
   if (ds.work){ openWork(Number(ds.work)); return; }
   if (ds.lbstep){ stepWork(Number(ds.lbstep)); return; }
   if (ds.lbclose!==undefined){ closeWork(); return; }
+  if (ds.big!==undefined){ openBig(); return; }
+  if (ds.zvgo){ zvGo(ds.zvgo); return; }
+  if (ds.zvclose!==undefined){ closeBig(); return; }
   if (ds.zoom!==undefined){ openFab(); return; }
   if (ds.fview){ lbView=ds.fview; showWork(); return; }
   if (ds.lbpick){ S.custom=true; S.fabrics[S.part]=ds.lbpick; delete S.browse[S.part]; linkParts(design(S.design)); renderParts(); renderEditor(); redraw(); updateNote(); showWork(); return; }
@@ -1233,9 +1255,67 @@ function openOrder(){
 function closeOrder(){ $('order').hidden=true; document.body.style.overflow=''; lastFocus&&lastFocus.focus&&lastFocus.focus(); }
 $('order').addEventListener('click', e=>{ if (e.target.id==='order') closeOrder(); });
 document.addEventListener('keydown', e=>{
+  if (e.key==='Escape' && !$('zv').hidden) closeBig();
   if (e.key==='Escape' && !$('order').hidden) closeOrder();
   if (!$('lb').hidden){ if (e.key==='Escape') closeWork(); if (e.key==='ArrowLeft') stepWork(-1); if (e.key==='ArrowRight') stepWork(1); }
 });
+
+/* ---------- Штора крупно ----------
+   Рисуем превью заново в большом холсте (≈1400 px по ширине), превращаем в картинку и показываем на весь экран:
+   щипок двумя пальцами или колесо — масштаб, палец или мышь — сдвиг, двойной тап — приблизить/вернуть. */
+const ZV={ sc:1, x:0, y:0, base:1, bot:.9, url:null, ptrs:new Map(), pinch:null, tap:0 };
+function openBig(){
+  const d=design(S.design), dpr=Math.min(2, devicePixelRatio||1), w=Math.round(1400/dpr);
+  const k=Math.min(2.2, Math.max(.75, innerHeight/innerWidth)), T=tokens();  // в пропорциях экрана — штора займёт его целиком
+  const cv=document.createElement('canvas'); cv.style.cssText=`position:fixed;left:-99999px;top:0;width:${w}px;height:${Math.round(w*k)}px`;
+  $('zv').style.background=`linear-gradient(${T.wall},${T.wall2})`;
+  document.body.appendChild(cv);
+  if (photoMode(d)) drawPhoto(cv, d, S.fabrics, false); else draw(cv, d, S.fabrics, S.widths, S.view, false);
+  ZV.bot=cv._bot || .9;
+  cv.toBlob(b=>{ cv.remove(); cv.width=cv.height=0; if (!b) return;
+    if (ZV.url) URL.revokeObjectURL(ZV.url); ZV.url=URL.createObjectURL(b);
+    const im=$('zv-img'); im.onload=()=>{ $('zv').hidden=false; document.body.style.overflow='hidden'; zvGo(trimOf(d,S.fabrics).tile ? 'bottom' : 'fit'); };
+    im.alt=`№ ${d.num} · ${d.name} крупно`; im.src=ZV.url; }, 'image/jpeg', .9);
+}
+function closeBig(){ $('zv').hidden=true; document.body.style.overflow=''; $('zv-img').removeAttribute('src'); if (ZV.url){ URL.revokeObjectURL(ZV.url); ZV.url=null; } }
+function zvApply(){
+  const a=$('zv-area'), im=$('zv-img'), iw=im.naturalWidth*ZV.sc, ih=im.naturalHeight*ZV.sc, AW=a.clientWidth, AH=a.clientHeight;
+  ZV.x = iw<=AW ? (AW-iw)/2 : Math.min(0, Math.max(AW-iw, ZV.x));
+  ZV.y = ih<=AH ? (AH-ih)/2 : Math.min(0, Math.max(AH-ih, ZV.y));
+  im.style.transform=`translate(${ZV.x}px,${ZV.y}px) scale(${ZV.sc})`;
+  document.querySelectorAll('[data-zvgo]').forEach(b=>{ const on=b.dataset.zvgo===(ZV.sc<=ZV.base*1.01?'fit':'bottom'); b.classList.toggle('on',on); b.setAttribute('aria-pressed',on); });
+}
+function zvGo(mode){
+  const a=$('zv-area'), im=$('zv-img'); ZV.base=Math.min(a.clientWidth/im.naturalWidth, a.clientHeight/im.naturalHeight);
+  if (mode==='bottom'){ ZV.sc=ZV.base*2.6; ZV.x=(a.clientWidth-im.naturalWidth*ZV.sc)/2; ZV.y=a.clientHeight*.45-ZV.bot*im.naturalHeight*ZV.sc; }
+  else ZV.sc=ZV.base;
+  zvApply();
+}
+function zvZoom(k, cx, cy){
+  const sc=Math.min(ZV.base*6, Math.max(ZV.base, ZV.sc*k));
+  ZV.x=cx-(cx-ZV.x)*sc/ZV.sc; ZV.y=cy-(cy-ZV.y)*sc/ZV.sc; ZV.sc=sc; zvApply();
+}
+(()=>{
+  const a=$('zv-area'), pt=e=>{ const r=a.getBoundingClientRect(); return [e.clientX-r.left, e.clientY-r.top]; };
+  a.addEventListener('wheel', e=>{ e.preventDefault(); zvZoom(Math.exp(-e.deltaY*.0015), ...pt(e)); }, { passive:false });
+  a.addEventListener('pointerdown', e=>{
+    a.setPointerCapture(e.pointerId); ZV.ptrs.set(e.pointerId, pt(e));
+    if (ZV.ptrs.size===1){ const now=Date.now();  // двойной тап: приблизить к месту тапа или вернуть целиком
+      if (now-ZV.tap<300){ ZV.sc>ZV.base*1.05 ? zvGo('fit') : zvZoom(2.6, ...pt(e)); ZV.tap=0; } else ZV.tap=now; }
+    ZV.pinch=null;
+  });
+  a.addEventListener('pointermove', e=>{
+    if (!ZV.ptrs.has(e.pointerId)) return;
+    const prev=ZV.ptrs.get(e.pointerId), cur=pt(e); ZV.ptrs.set(e.pointerId, cur);
+    if (ZV.ptrs.size===1){ ZV.x+=cur[0]-prev[0]; ZV.y+=cur[1]-prev[1]; zvApply(); return; }
+    const [p,q]=[...ZV.ptrs.values()], dist=Math.hypot(p[0]-q[0], p[1]-q[1]), mx=(p[0]+q[0])/2, my=(p[1]+q[1])/2;
+    if (ZV.pinch){ ZV.x+=mx-ZV.pinch.mx; ZV.y+=my-ZV.pinch.my; zvZoom(dist/ZV.pinch.dist, mx, my); }
+    ZV.pinch={ dist, mx, my };
+  });
+  const up=e=>{ ZV.ptrs.delete(e.pointerId); ZV.pinch=null; };
+  a.addEventListener('pointerup', up); a.addEventListener('pointercancel', up);
+  addEventListener('resize', ()=>{ if (!$('zv').hidden) zvGo('fit'); });
+})();
 
 /* ---------- Просмотр готовых работ ---------- */
 function renderWorks(){
