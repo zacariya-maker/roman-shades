@@ -297,7 +297,7 @@ pre.msg{white-space:pre-wrap;word-break:break-word;background:var(--soft);border
   <section id="view-designs">
     <div class="wrap intro">
       <h1>Выберите дизайн шторы</h1>
-      <p>16 моделей нашего ателье. Нажмите на понравившуюся, а на следующем шаге подберите ткани для основы, кантов и декора.</p>
+      <p><span id="d-count">18</span> моделей нашего ателье. Нажмите на понравившуюся, а на следующем шаге подберите ткани для основы, кантов и декора.</p>
     </div>
     <div class="wrap">
       <div class="chips scroll filters" id="filters" role="radiogroup" aria-label="Фильтр дизайнов"></div>
@@ -445,9 +445,12 @@ const browseCol = p => { const c=S.browse[p] || fab(S.fabrics[p]).col; return co
 // hem — высота нижней части под складками; depth — глубина фигурного низа.
 const K = (shape, part, w, d=0, extra={}) => ({ shape, part, w, d, ...extra });
 const D = (bottom, kants, x={}) => ({ bottom, kants, depth:x.depth||0, hem:x.hem||12, hemPart:!!x.hemPart,
-  bows:x.bows||null, ruffle:x.ruffle||0, pompons:!!x.pompons, tassel:!!x.tassel, fabrics:x.fabrics||{}, labels:x.labels||{} });
+  bows:x.bows||null, seam:x.seam||null, ruffle:x.ruffle||0, pompons:!!x.pompons, tassel:!!x.tassel, fabrics:x.fabrics||{}, labels:x.labels||{} });
 const Gr='klot-22', Be='klot-2', Wh='klot-1', Pom='pom6203-03', TsBe='kist1721-01', TsGr='kist1721-05';
 const TWO = { kant1:'Внешний кант', kant2:'Внутренний кант' };
+// номер модели, как в сторис ателье «Дизайны штор» (code — внутренний номер: по нему лежат фото и работы)
+// 1–15 — модели из сторис; 01 «Полосы и рюши», 10 «Фестоны», 11 «Рамка-волна» в сторис нет — идут следом
+const NUM = { 17:1, 18:2, 16:3, 15:4, 14:5, 13:6, 6:7, 7:8, 8:9, 5:10, 4:11, 3:12, 12:13, 9:14, 2:15, 1:16, 10:17, 11:18 };
 const DESIGNS = [
   [1,'Полосы и рюши', D('straight',[K('stripes','kant1',7,10,{ stop:6 })],{ hem:12, ruffle:15, fabrics:{ main:Gr, kant1:Be, ruffle:Be } })],
   [2,'Волна с кистью', D('notch2',[K('inner-u','kant1',9,10,{ db:7 })],{ depth:10, hem:30, tassel:true, fabrics:{ main:Be, kant1:Gr, tassel:TsBe } })],
@@ -457,7 +460,7 @@ const DESIGNS = [
   [6,'Помпоны', D('straight',[],{ hem:10, pompons:true, fabrics:{ main:Gr, pompons:Pom } })],
   [7,'П-кант с помпонами', D('straight',[K('inner-u','kant1',4,6.5,{ db:9 })],{ hem:18, pompons:true, fabrics:{ main:Be, kant1:Gr, pompons:Pom } })],
   [8,'Полосы с бантами', D('straight',[K('stripes','kant1',3.6,12.5)],{ hem:20, bows:{ at:'stripes', y:8, size:5, tail:22 }, fabrics:{ main:Gr, kant1:Be, bows:Be } })],
-  [9,'Рамка с мысом и кистью', D('ogee',[K('edge-u','kant1',10)],{ depth:12, hem:26, tassel:true, fabrics:{ main:Be, kant1:Gr, tassel:TsGr } })],
+  [9,'Восточная классика', D('ogee',[K('edge-u','kant1',10)],{ depth:12, hem:26, tassel:true, fabrics:{ main:Be, kant1:Gr, tassel:TsGr } })],
   [10,'Фестоны', D('scallop4',[],{ depth:14, hem:32, fabrics:{ main:Gr } })],
   [11,'Рамка-волна с кистью', D('notch2',[K('edge-u','kant1',10)],{ depth:10, hem:26, tassel:true, fabrics:{ main:Gr, kant1:Be, tassel:TsGr } })],
   [12,'Двойной кант с арками', D('straight',[K('inner-u','kant2',4.5,21),K('arch-u','kant1',7,11,{ r:27 })],{ hem:50, fabrics:{ main:Gr, kant1:Be, kant2:Be }, labels:TWO })],
@@ -465,8 +468,12 @@ const DESIGNS = [
   [14,'Широкая рамка', D('straight',[K('edge-u','kant1',11)],{ hem:18, fabrics:{ main:Be, kant1:Gr } })],
   [15,'П-рамка', D('straight',[K('inner-u','kant1',9,11.6)],{ hem:28, fabrics:{ main:Gr, kant1:Be } })],
   [16,'Тонкая П-рамка', D('straight',[K('inner-u','kant1',2.2,11.2)],{ hem:22, fabrics:{ main:Be, kant1:Gr } })],
-].map(([n,name,d])=>({ ...d, name, id:'d'+n, code:String(n).padStart(2,'0') }));
+  // без канта: только строчка подгиба по бокам; у «Конвертика» подгиб шире и идёт ещё по низу, углы — косым швом
+  [17,'Классическая', D('straight',[],{ hem:12, seam:{ w:4 }, fabrics:{ main:Gr } })],
+  [18,'Конвертик', D('straight',[],{ hem:14, seam:{ w:9, bottom:true }, fabrics:{ main:Gr } })],
+].map(([n,name,d])=>({ ...d, name, id:'d'+n, code:String(n).padStart(2,'0'), num:NUM[n] })).sort((a,b)=>a.num-b.num);
 const design = id => DESIGNS.find(d=>d.id===id);
+document.getElementById('d-count').textContent=DESIGNS.length;
 
 const PART_NAMES = { main:'Основная ткань', kant1:'Кант', kant2:'Второй кант', hem:'Ткань низа', bows:'Бантики', ruffle:'Рюши', pompons:'Помпоны', tassel:'Кисть' };
 const SHORT = { main:'Основа', kant1:'Кант', kant2:'Второй кант', hem:'Низ', bows:'Бантики', ruffle:'Рюши', pompons:'Помпоны', tassel:'Кисть' };
@@ -484,6 +491,7 @@ function tagsOf(d){
   if (d.kants.some(k=>k.shape==='greek-key')) t.push('квадраты');
   if (d.kants.some(k=>k.shape==='arch-u')) t.push('арки');
   if (BOTTOMS[d.bottom]) t.push(BOTTOMS[d.bottom]);
+  if (d.seam?.bottom) t.push('пошив конвертиком');
   if (d.hemPart) t.push('низ другой тканью');
   if (d.bows) t.push('банты'); if (d.ruffle) t.push('рюши'); if (d.pompons) t.push('помпоны'); if (d.tassel) t.push('кисть');
   return t.length ? t.join(' · ') : 'гладкое полотно';
@@ -495,7 +503,7 @@ const FILTERS = [
 
 /* ---------- Состояние ---------- */
 const S = {
-  design:'d1', filter:'all', part:'main', view:'raised', photo:true,
+  design:DESIGNS[0].id, filter:'all', part:'main', view:'raised', photo:true,
   size:null,  // { w, h, chain } в см; null — клиент ещё не указал размер, цену не показываем
   fabrics:{ main:Gr, kant1:Be, kant2:Be, hem:Be, bows:Be, ruffle:Be, pompons:Pom, tassel:TsBe },
   widths:{}, browse:{},
@@ -768,6 +776,15 @@ function draw(cv, d, fabrics, widths, view, thumb){
     c.fillStyle = isLast && d.hemPart ? P.hem : P.main; c.fillRect(x0,s.top,sw,h);
     if (s.flat){ c.fillStyle='rgba(0,0,0,.045)'; [1,2].forEach(n=>c.fillRect(x0,y0+(yF-y0)*n/3,sw,1)); }
     d.kants.forEach(k=>drawKant(k,isLast));
+    if (d.seam){  // подгиб той же тканью: чуть другой оттенок и строчка
+      const ew=d.seam.w*ppc, bot=d.seam.bottom && isLast;
+      c.fillStyle='rgba(0,0,0,.035)'; c.fillRect(x0,s.top,ew,h); c.fillRect(x1-ew,s.top,ew,h);
+      c.strokeStyle='rgba(0,0,0,.2)'; c.lineWidth=Math.max(.8,ppc*.12); c.beginPath();
+      [x0+ew,x1-ew].forEach(x=>{ c.moveTo(x,s.top); c.lineTo(x,bot ? yb(x)-ew : s.top+h); });
+      if (bot){ c.moveTo(x0+ew,yb(x0)-ew); c.lineTo(x1-ew,yb(x1)-ew); c.moveTo(x0,yb(x0)); c.lineTo(x0+ew,yb(x0)-ew); c.moveTo(x1,yb(x1)); c.lineTo(x1-ew,yb(x1)-ew); }
+      c.stroke();
+      if (bot){ c.fillStyle='rgba(0,0,0,.035)'; bottomLine(0, x0+ew, x1-ew); c.lineTo(x1-ew,yb(x1)-ew); c.lineTo(x0+ew,yb(x0)-ew); c.fill(); }
+    }
     if (s.hem){
       g=c.createLinearGradient(0,s.top,0,s.top+h); g.addColorStop(0,nf?'rgba(0,0,0,.16)':'rgba(0,0,0,.06)'); g.addColorStop(Math.min(.3,fh/h),'rgba(0,0,0,0)'); g.addColorStop(.8,'rgba(255,255,255,.04)'); g.addColorStop(1,'rgba(0,0,0,.12)');
     } else if (s.flat){
@@ -883,7 +900,7 @@ function renderGrid(){
   const fn=FILTERS.find(f=>f[0]===S.filter)[2];
   const list=DESIGNS.filter(fn);
   $('grid').innerHTML = list.map(d=>`<button type="button" class="card${d.id===S.design?' on':''}" data-design="${d.id}" aria-pressed="${d.id===S.design}">
-      <canvas data-thumb="${d.id}" aria-hidden="true"></canvas><small>№ ${d.code}${worksOf(d).length?` · ${worksOf(d).length} фото работ`:''}</small><b>${d.name}</b><span>${tagsOf(d)}</span></button>`).join('')
+      <canvas data-thumb="${d.id}" aria-hidden="true"></canvas><small>№ ${d.num}${worksOf(d).length?` · ${worksOf(d).length} фото работ`:''}</small><b>${d.name}</b><span>${tagsOf(d)}</span></button>`).join('')
     || `<p class="empty">В этой группе пока нет дизайнов.</p>`;
   drawThumbs();
 }
@@ -900,11 +917,11 @@ function renderFabricsView(){
   const d=design(S.design); linkParts(d);
   const parts=shownParts(d);
   if (!parts.includes(S.part)) S.part='main';
-  $('d-head').innerHTML = `<div><p class="eyebrow">Дизайн № ${d.code}</p><h2>${d.name}</h2><p class="tags">${tagsOf(d)}</p></div>
+  $('d-head').innerHTML = `<div><p class="eyebrow">Дизайн № ${d.num}</p><h2>${d.name}</h2><p class="tags">${tagsOf(d)}</p></div>
     <a class="link" href="#designs">Сменить дизайн</a>`;
   renderWorks(); renderParts(); renderEditor(); redraw();
   syncView();
-  $('bar-title').textContent = `№ ${d.code} · ${d.name}`;
+  $('bar-title').textContent = `№ ${d.num} · ${d.name}`;
   updateNote();
 }
 function renderParts(){
@@ -975,7 +992,7 @@ function stepDesign(n){
   const mine={ main:S.fabrics.main, kant1:S.fabrics.kant1 };
   S.design=d.id; resetWidths(); Object.assign(S.fabrics, d.fabrics);  // вкладку оставляем; нет такой части — renderFabricsView вернёт на «Основу»
   if (S.custom) Object.assign(S.fabrics, mine);  // клиент уже выбирал ткани — сравниваем дизайны в его цветах
-  renderFabricsView(); toast(`№ ${d.code} · ${d.name}`);
+  renderFabricsView(); toast(`№ ${d.num} · ${d.name}`);
 }
 function stepFabric(part, n){
   const d=design(S.design), f=fab(S.fabrics[part]), list=FABRICS.filter(x=>x.col===browseCol(part)), i=list.findIndex(x=>x.id===f.id);
@@ -1069,7 +1086,7 @@ document.addEventListener('input', e=>{ if (e.target.id==='w-range') setWidth(Nu
 function updateNote(){
   const d=design(S.design), z=S.size;
   $('bar-title').textContent = z ? (price()==null ? 'Цена по запросу' : priceText()) : 'Узнать цену';
-  $('bar-note').textContent = z ? `${z.w} × ${z.h} см · № ${d.code} ${d.name}` : 'укажите размер';
+  $('bar-note').textContent = z ? `${z.w} × ${z.h} см · № ${d.num} ${d.name}` : 'укажите размер';
   $('size-chip').classList.toggle('empty', !z);
   $('size-chip').innerHTML = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 5V2h3M14 5V2h-3M2 11v3h3M14 11v3h-3"/></svg>${z ? `${z.w} × ${z.h} см` : 'Размер'}`;
   $('size-chip').setAttribute('aria-label', z ? `Размер шторы ${z.w} на ${z.h} см, изменить` : 'Указать размер шторы');
@@ -1144,7 +1161,7 @@ let lastFocus=null, msg='';
 function summaryRows(){
   const d=design(S.design);
   const z=S.size;
-  return [['Дизайн',`№ ${d.code} · ${d.name}`],
+  return [['Дизайн',`№ ${d.num} · ${d.name}`],
     ...(z ? [['Размер',`${z.w} × ${z.h} см`],['Длина цепи',`${chainOf(z)} см`]] : [['Размер','не указан']]),
     ...partsOf(d).map(p=>[label(p), fabLabel(fab(S.fabrics[p]))+(S.widths[p]!=null?`, ширина ${cm(S.widths[p])}`:'')]),
     ...(z ? [['Предварительно', price()==null ? 'цену назовёт менеджер' : priceText()]] : [])];
@@ -1217,7 +1234,7 @@ function showWork(){
   const d=design(S.design), list=worksOf(d);
   lbIdx=(lbIdx+list.length)%list.length;
   $('lb-img').src=list[lbIdx]; $('lb-img').alt=`Готовая штора в дизайне «${d.name}», фото ${lbIdx+1}`;
-  $('lb-cap').textContent=`№ ${d.code} · ${d.name} · ${lbIdx+1} из ${list.length}`;
+  $('lb-cap').textContent=`№ ${d.num} · ${d.name} · ${lbIdx+1} из ${list.length}`;
   $('lb-prev').hidden=$('lb-next').hidden=list.length<2;
 }
 function openFab(){ lbFab=true; lbFocus=document.activeElement; lbIdx=lbFabs().findIndex(x=>x.id===S.fabrics[S.part]); showWork(); $('lb').hidden=false; document.body.style.overflow='hidden'; $('lb-x').focus(); }
