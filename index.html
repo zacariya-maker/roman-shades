@@ -92,8 +92,9 @@ h3{font-size:15px;font-weight:600;margin:0}
 .size-chip.empty{background:#3A211A;color:#fff}
 .size-chip svg{width:14px;height:14px;flex:none}
 @media (max-width:560px){.size-chip{top:14px;right:8px;height:30px;padding:0 10px;font-size:11.5px}}
-.big-btn{position:absolute;top:58px;right:10px;width:36px;height:36px;display:grid;place-items:center;border:0;border-radius:50%;background:rgba(255,255,255,.75);color:#2a1d18;cursor:pointer;backdrop-filter:blur(6px)}
-.big-btn svg{width:18px;height:18px}
+.big-btn{position:absolute;top:58px;right:10px;width:36px;height:36px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.55);border-radius:50%;background:rgba(255,255,255,.14);color:#fff;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:background .2s,transform .2s}
+.big-btn:hover{background:rgba(255,255,255,.26)} .big-btn:active{transform:scale(.92)}
+.big-btn svg{width:20px;height:20px}
 @media (max-width:560px){.big-btn{top:50px;right:8px;width:32px;height:32px}}
 .ov.zv{background:rgba(20,12,10,.95);padding:0}
 .zv-area{position:absolute;inset:0;overflow:hidden;touch-action:none;cursor:grab}
@@ -328,7 +329,7 @@ pre.msg{white-space:pre-wrap;word-break:break-word;background:var(--soft);border
           <button type="button" data-view="light">На просвет</button>
         </div>
         <button type="button" class="size-chip" id="size-chip" data-sizes></button>
-        <button type="button" class="big-btn" data-big aria-label="Рассмотреть штору крупно"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M12.5 12.5L17 17M8.5 6v5M6 8.5h5"/></svg></button>
+        <button type="button" class="big-btn" data-big aria-label="Рассмотреть штору крупно"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M10 5.5v9M5.5 10h9"/></svg></button>
         <p class="m-toast" id="m-toast" aria-live="polite"></p>
         <div class="m-width" id="m-width" hidden></div>
         <p class="light-note" id="light-note" hidden>Светопропускаемость около 50%: ткань мягко рассеивает дневной свет, но не затемняет комнату полностью. Это не блэкаут.</p>
@@ -614,6 +615,8 @@ const shownParts = d => photoMode(d) ? [...(photoOf(d).parts || ['main','kant1']
 function linkParts(d){ const p=photoOf(d); if (!p || !S.photo) return; Object.entries(p.link).forEach(([from,to])=>to.forEach(t=>{ S.fabrics[t]=S.fabrics[from]; })); }
 // два общих холста для перекраски слоёв: создаём один раз, а не на каждую перерисовку
 const TINT=[document.createElement('canvas'), document.createElement('canvas')];
+// dpr для рендера в лупу (0 — обычный экран)
+const BIG={ dpr:0 };
 // высота верхней полосы под кнопками превью на телефоне — штору в неё не рисуем
 const SEG_BAND = (W, thumb) => thumb ? 0 : innerWidth<=560 ? 40 : 56;
 // декор низа: повторяем кусок с фото товара от xl до xr, верх тесьмы — на линии y; ppc — пикселей на см
@@ -625,11 +628,11 @@ function drawTrim(c, f, xl, xr, y, ppc){
   for (let x=xl; x<xr-.5; x+=tw){ const w=Math.min(tw, xr-x); c.drawImage(im, 0, 0, im.naturalWidth*w/tw, im.naturalHeight, x, y-th*.03, w, th); }
 }
 const trimOf = (d, fabrics) => d.trim ? fab(fabrics.trim) : NONE;
-function drawPhoto(cv, d, fabrics, thumb){
+function drawPhoto(cv, d, fabrics, thumb, hdSet){
   const W=cv.clientWidth, H=cv.clientHeight; if(!W||!H) return;
-  const dpr=Math.min(2, window.devicePixelRatio||1), T=tokens();
+  const dpr=BIG.dpr || Math.min(2, window.devicePixelRatio||1), T=tokens();
   const ready = set => Object.values(set).every(loaded);
-  const set = photoSet(d.code, !!thumb), ok=ready(set);
+  const set = hdSet || photoSet(d.code, !!thumb), ok=ready(set);
   // ничего не изменилось — не перерисовываем (на телефоне перерисовки идут часто: адресная строка, шрифты)
   const tr=thumb ? NONE : trimOf(d, fabrics), trOk=!tr.tile || loaded(tileImg(tr));
   const key=[d.code,W,H,dpr,T.wall,ok,tr.id,trOk,shadeSize(false).w,...(photoOf(d).parts||['main','kant1']).map(p=>fabrics[p])].join('|');
@@ -637,7 +640,7 @@ function drawPhoto(cv, d, fabrics, thumb){
   cv._key=key;
   cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr);
   const c=cv.getContext('2d'); c.setTransform(dpr,0,0,dpr,0,0);
-  const g=c.createLinearGradient(0,0,0,H); g.addColorStop(0,T.wall); g.addColorStop(1,T.wall2);
+  const g=BIG.dpr ? T.wall2 : c.createLinearGradient(0,0,0,H); if (!BIG.dpr){ g.addColorStop(0,T.wall); g.addColorStop(1,T.wall2); }
   c.fillStyle=g; c.fillRect(0,0,W,H);
   if (!ok){ cv._wait=true; return; }
   let fade=1;  // плавное появление, если большие карты пришли уже после открытия
@@ -713,11 +716,11 @@ const PROFILES = {
 function draw(cv, d, fabrics, widths, view, thumb){
   cv._key=null;  // холст перерисован схемой — фото потом нужно рисовать заново
   const W=cv.clientWidth, H=cv.clientHeight; if(!W||!H) return;
-  const dpr=Math.min(2, window.devicePixelRatio||1);
+  const dpr=BIG.dpr || Math.min(2, window.devicePixelRatio||1);
   cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr);
   let c=cv.getContext('2d'); c.setTransform(dpr,0,0,dpr,0,0); // в режиме «На просвет» c на время переключается на карту света
   const T=tokens();
-  let g=c.createLinearGradient(0,0,0,H); g.addColorStop(0,T.wall); g.addColorStop(1,T.wall2);
+  let g=BIG.dpr ? T.wall2 : c.createLinearGradient(0,0,0,H); if (!BIG.dpr){ g.addColorStop(0,T.wall); g.addColorStop(1,T.wall2); }
   c.fillStyle=g; c.fillRect(0,0,W,H);
 
   // штора без окна в пропорциях заказа: подбираем размер так, чтобы штора вместе с низом и декором
@@ -1264,20 +1267,45 @@ document.addEventListener('keydown', e=>{
    Рисуем превью заново в большом холсте (≈1400 px по ширине), превращаем в картинку и показываем на весь экран:
    щипок двумя пальцами или колесо — масштаб, палец или мышь — сдвиг, двойной тап — приблизить/вернуть. */
 const ZV={ sc:1, x:0, y:0, base:1, bot:.9, url:null, ptrs:new Map(), pinch:null, tap:0 };
-function openBig(){
-  const d=design(S.design), dpr=Math.min(2, devicePixelRatio||1), w=Math.round(1400/dpr);
-  const k=Math.min(2.2, Math.max(.75, innerHeight/innerWidth)), T=tokens();  // в пропорциях экрана — штора займёт его целиком
-  const cv=document.createElement('canvas'); cv.style.cssText=`position:fixed;left:-99999px;top:0;width:${w}px;height:${Math.round(w*k)}px`;
-  $('zv').style.background=`linear-gradient(${T.wall},${T.wall2})`;
-  document.body.appendChild(cv);
-  if (photoMode(d)) drawPhoto(cv, d, S.fabrics, false); else draw(cv, d, S.fabrics, S.widths, S.view, false);
-  ZV.bot=cv._bot || .9;
-  cv.toBlob(b=>{ cv.remove(); cv.width=cv.height=0; if (!b) return;
-    if (ZV.url) URL.revokeObjectURL(ZV.url); ZV.url=URL.createObjectURL(b);
-    const im=$('zv-img'); im.onload=()=>{ $('zv').hidden=false; document.body.style.overflow='hidden'; zvGo(trimOf(d,S.fabrics).tile ? 'bottom' : 'fit'); };
-    im.alt=`№ ${d.num} · ${d.name} крупно`; im.src=ZV.url; }, 'image/jpeg', .9);
+// рендер для лупы: макет 400 css px по ширине, а чёткость задаём через dpr (BIG) — у быстрого и HD-варианта одна геометрия
+function renderBig(d, px, hdSet){
+  const im=photoMode(d) ? (hdSet || photoSet(d.code, false)).main : null, cw=400;
+  const ch=im ? SEG_BAND(cw,false)+cw*im.naturalHeight/im.naturalWidth*(trimOf(d,S.fabrics).tile ? 1.3 : 1.04) : cw*1.35;
+  const cv=document.createElement('canvas'); cv.style.cssText=`position:fixed;left:-99999px;top:0;width:${cw}px;height:${Math.round(ch)}px`;
+  document.body.appendChild(cv); BIG.dpr=px/cw;
+  try { if (im) drawPhoto(cv, d, S.fabrics, false, hdSet); else draw(cv, d, S.fabrics, S.widths, S.view, false); } finally { BIG.dpr=0; }
+  const bot=cv._bot || .9;
+  return new Promise(res=>cv.toBlob(b=>{ cv.remove(); cv.width=cv.height=0; TINT.forEach(t=>{ t.width=t.height=1; }); res({ url:b && URL.createObjectURL(b), bot }); }, 'image/jpeg', .9));
 }
-function closeBig(){ $('zv').hidden=true; document.body.style.overflow=''; $('zv-img').removeAttribute('src'); if (ZV.url){ URL.revokeObjectURL(ZV.url); ZV.url=null; } }
+// HD-карты (photos/web/dNN-*-hd.webp, tools/photo_hd.py) — только для лупы, после рендера освобождаем
+function photoHD(code){
+  const p=PHOTOS[code];
+  return Promise.all(photoLayers(p).map(k=>new Promise(res=>{ const im=new Image(); im.onload=im.onerror=()=>res([k,im]); im.src=`${p.base.replace('photos/','photos/web/')}-${k}-hd.webp`; })))
+    .then(Object.fromEntries);
+}
+function zvShow(url){ if (ZV.url) URL.revokeObjectURL(ZV.url); ZV.url=url; $('zv-img').src=url; }
+async function openBig(){
+  const d=design(S.design), T=tokens(), im=$('zv-img'), cap=document.querySelector('.zv .lb-cap'), token=ZV.token=(ZV.token||0)+1;
+  $('zv').style.background=T.wall2; cap.textContent='Приближайте двумя пальцами или колёсиком, двигайте штору пальцем'; im.alt=`№ ${d.num} · ${d.name} крупно`;
+  const first=await renderBig(d, photoMode(d) ? 1180 : 2000);  // быстрый вариант из обычных карт (у схемы — сразу чёткий)
+  if (!first.url) return;
+  ZV.bot=first.bot;
+  await new Promise(res=>{ im.onload=res; zvShow(first.url); });
+  $('zv').hidden=false; document.body.style.overflow='hidden'; zvGo(trimOf(d,S.fabrics).tile ? 'bottom' : 'fit');
+  if (!photoMode(d)) return;
+  cap.textContent='Загружаю чёткое фото…';
+  const set=await photoHD(d.code), ok=Object.values(set).every(loaded);
+  if (ok && token===ZV.token && !$('zv').hidden){
+    const w0=im.naturalWidth, hd=await renderBig(d, set.main.naturalWidth/.93, set);
+    if (hd.url && token===ZV.token && !$('zv').hidden){
+      await new Promise(res=>{ im.onload=res; zvShow(hd.url); });
+      const f=im.naturalWidth/w0; ZV.sc/=f; ZV.base/=f; zvApply();  // та же картинка, только чётче — масштаб пересчитываем
+    } else if (hd.url) URL.revokeObjectURL(hd.url);
+  }
+  Object.values(set).forEach(x=>{ x.onload=null; x.src=''; });
+  cap.textContent=ok ? 'Приближайте двумя пальцами или колёсиком, двигайте штору пальцем' : 'Чёткое фото не загрузилось — показана обычная версия';
+}
+function closeBig(){ ZV.token=(ZV.token||0)+1; $('zv').hidden=true; document.body.style.overflow=''; $('zv-img').removeAttribute('src'); if (ZV.url){ URL.revokeObjectURL(ZV.url); ZV.url=null; } }
 function zvApply(){
   const a=$('zv-area'), im=$('zv-img'), iw=im.naturalWidth*ZV.sc, ih=im.naturalHeight*ZV.sc, AW=a.clientWidth, AH=a.clientHeight;
   ZV.x = iw<=AW ? (AW-iw)/2 : Math.min(0, Math.max(AW-iw, ZV.x));
