@@ -400,41 +400,52 @@ const NEW = {
   tendu: {42:['#AE9D7E',11.1], 43:['#AD9B81',11.1], 44:['#B0B19B',11.1], 45:['#A49479',11.1], 46:['#8F7C64',11.1], 47:['#77624A',11.1], 48:['#A1997D',11.1], 49:['#796F58',11.1], 50:['#A1AFAF',11.1], 51:['#557D99',11.1], 52:['#847F47',11.1]},
   kroy: {1:['#D3CDD1',6.5], 2:['#D7C7B7',7.8], 3:['#D5BD9B',8.2], 4:['#BFA48B',9.4], 5:['#C19C6D',9.4], 6:['#76563E',9.4], 7:['#5E4333',9.4], 8:['#35241D',11.0], 9:['#632517',11.0], 10:['#54151C',11.4], 11:['#632D2F',11.4], 12:['#A76E69',8.2], 13:['#351A23',9.0], 14:['#191A26',12.2], 15:['#2E2E3B',12.2], 16:['#425B5F',11.0], 17:['#2E4145',11.0], 18:['#293026',10.2], 19:['#B78840',9.0], 20:['#7C6955',9.0], 21:['#B2967E',9.0], 22:['#786D6A',9.8], 23:['#776C6A',9.8], 24:['#594F4D',11.0], 25:['#2F2525',11.0], 26:['#2B2626',8.6], 27:['#020202',9.0]},
 };
-// декор — tools/cut_decor.py: у каждого изделия только цвет, картинка — фото товара
+// декор — tools/cut_decor.py: у каждого изделия цвет, картинка — фото товара;
+// у декора низа ещё [цвет, ширина/высота повторяющегося куска, высота декора в см] — кусок повторяется вдоль низа шторы
 const DECOR = [
   { id:'kist1721', name:'Кисти 1721', maker:'', kind:'tassel', items:{ '01':'#C5C4BB', '05':'#827B6C', '1077':'#81343C', '11':'#B3925D', '12':'#677579', '13':'#B0ADA5', '18':'#B0934B', '21':'#929A9C', '32':'#383736', '38':'#999491', '39':'#465A50', '42':'#668097' } },
-  { id:'pom6203', name:'Помпоны 6203', maker:'', kind:'pompon', items:{ '01':'#C2A9A1', '02':'#A5AEB1', '03':'#BDBDB6', '04':'#C0B9A9', '05':'#BC8176', '06':'#A09F8E', '07':'#928B82', '08':'#B7A299' } },
-  { id:'pom6209', name:'Помпоны 6209', maker:'', kind:'pompon', items:{ '01':'#B6A096', '02':'#9CA19F', '03':'#A5A59D', '04':'#ACA591', '05':'#AD7D71', '06':'#9C9C89', '07':'#908A80', '08':'#AE9C92' } },
-  { id:'pom6201', name:'Шарики 6201', maker:'', kind:'pompon', items:{ '01':'#D8C0B3', '02':'#BEC3C3', '03':'#CBC9C2', '04':'#D1CCBD', '05':'#C89587', '06':'#B9B8A6', '07':'#AFA79B', '08':'#C3BAB2' } },
-  { id:'pom6202', name:'Шарики 6202', maker:'', kind:'pompon', items:{ '01':'#D0BFB8', '02':'#BBC0C0', '03':'#C9C7C1', '04':'#D0CCBD', '05':'#CA9A8F', '06':'#BDBCAC', '07':'#A9A19B', '08':'#C5B6AF' } },
-  { id:'vpom', name:'Помпоны', maker:'Vinarti', kind:'pompon', items:{ 'ZT968-1771':'#E2D8C9', 'AT8105-A1':'#BBAB92', 'AT8105-A2':'#B8A589', 'AT8149-A2':'#BDB9B3' } },
+  { id:'pom6203', name:'Помпоны 6203', maker:'', kind:'pompon', items:{ '01':['#C2A9A1',0.85,8], '02':['#A5AEB1',1.29,8], '03':['#BDBDB6',0.86,8], '04':['#C0B9A9',0.81,8], '05':['#BC8176',1.73,8], '06':['#A09F8E',0.82,8], '07':['#928B82',0.8,8], '08':['#B7A299',0.85,8] } },
+  { id:'pom6209', name:'Помпоны 6209', maker:'', kind:'pompon', items:{ '01':['#B6A096',1.925,8], '02':['#9CA19F',1.475,8], '03':['#A5A59D',2.155,8], '04':['#ACA591',2.205,8], '05':['#AD7D71',1.35,8], '06':['#9C9C89',1.405,8], '07':['#908A80',2.155,8], '08':['#AE9C92',1.42,8] } },
+  { id:'pom6201', name:'Шарики 6201', maker:'', kind:'pompon', items:{ '01':['#D8C0B3',2.075,5], '02':['#BEC3C3',2.14,5], '03':['#CBC9C2',2.22,5], '04':['#D1CCBD',2.075,5], '05':['#C89587',2.18,5], '06':['#B9B8A6',2.195,5], '07':['#AFA79B',2.235,5], '08':['#C3BAB2',2.185,5] } },
+  { id:'pom6202', name:'Шарики 6202', maker:'', kind:'pompon', items:{ '01':['#D0BFB8',1.725,5], '02':['#BBC0C0',1.685,5], '03':['#C9C7C1',1.725,5], '04':['#D0CCBD',1.755,5], '05':['#CA9A8F',1.635,5], '06':['#BDBCAC',1.66,5], '07':['#A9A19B',1.705,5], '08':['#C5B6AF',1.705,5] } },
+  { id:'vpom', name:'Помпоны', maker:'Vinarti', kind:'pompon', items:{ 'ZT968-1771':['#E2D8C9',1.28,8], 'AT8105-A1':['#BBAB92',1.555,8], 'AT8105-A2':['#B8A589',1.42,8], 'AT8149-A2':['#BDB9B3',10.285,9] } },
   { id:'tape1301', name:'Тесьма 1301', maker:'', kind:'tape', items:{ '01':'#FAF8F6', '02':'#AC352B', '03':'#B5575F', '04':'#ACA364', '05':'#8D7E67', '06':'#9A3256', '07':'#919F71', '08':'#3A2E2A', '09':'#B0492C', '10':'#3A516F', '11':'#D3C4A0', '12':'#677176', '13':'#B1A79D', '14':'#C2A35D', '15':'#B39361', '16':'#C7A99C', '17':'#9FA085', '18':'#C39047', '19':'#33474E', '20':'#7D1C21', '21':'#959A9C', '22':'#442F3A', '23':'#B09199', '24':'#2B4963', '25':'#8CA195', '26':'#C87B6F', '27':'#B6C5BE', '28':'#8F8A44', '29':'#E7C6BD', '30':'#BE5650', '31':'#502729', '32':'#2D2B2A', '33':'#5A5055', '34':'#433B37', '35':'#385C4B', '36':'#366956', '37':'#5C4937', '38':'#6B615E', '39':'#587671', '40':'#64B3A4', '41':'#B34C4C', '42':'#6888A0', '43':'#5C5742', '44':'#DED156', '45':'#4EC3D8', '46':'#E9863A', '47':'#C12323', '48':'#2B395D', '49':'#A1B865', '50':'#D03D70', '53':'#923161', '54':'#7C5177', '55':'#5B2930', '56':'#EEEBCB', '57':'#736148', '58':'#434633', '59':'#A99C56', '60':'#393C4E', '61':'#712934', '62':'#614657', '63':'#968782', '64':'#74728C', '65':'#EEDC8F', '66':'#C6BAA7', '67':'#6C5156', '68':'#BAAD9D' } },
   { id:'tape1302', name:'Тесьма 1302', maker:'', kind:'tape', items:{ '01':'#D5D1C9', '02':'#B4362D', '03':'#B6575F', '04':'#ACA364', '05':'#8D7E68', '06':'#9D3057', '07':'#8D9673', '08':'#392D29', '09':'#AD4E29', '10':'#3B4766', '11':'#D3C39A', '12':'#677175', '13':'#AFA49B', '14':'#C2A25C', '15':'#A9804B', '16':'#C6A99B', '17':'#9FA085', '18':'#C49147', '19':'#33464D', '20':'#7C1B20', '21':'#969B9C', '22':'#452F3B', '23':'#A98A90', '24':'#2B4A63', '25':'#8CA195', '26':'#C87B6F', '27':'#B1C0B9', '28':'#8F8A44', '29':'#E5C2BA', '30':'#BE5650', '31':'#502629', '32':'#2D2B2A', '33':'#454041', '34':'#433A37', '35':'#375C4B', '36':'#376956', '37':'#5C4937', '38':'#6B615E', '39':'#587671', '40':'#63B49A', '41':'#B34B4B', '42':'#698DA9', '43':'#595B46', '44':'#E2DF60', '45':'#4ABDD4', '46':'#DF7D34', '47':'#B71B1B', '48':'#293464', '49':'#A1B863', '50':'#CF3C6F', '53':'#902F5E', '54':'#7B5177', '55':'#6E3338', '56':'#EFEACC', '57':'#726047', '58':'#585B41', '59':'#AA9F57', '60':'#303342', '61':'#672228', '62':'#614550', '63':'#BAAD9C', '64':'#72708E', '65':'#EEDC8A', '66':'#D1C5B2', '67':'#674E53', '68':'#BBAF9B' } },
   { id:'tape1304', name:'Тесьма 1304', maker:'', kind:'tape', items:{ '01':'#D3CFC6', '02':'#B5362D', '03':'#B6575F', '04':'#ADA364', '05':'#8B7D66', '06':'#9D3057', '07':'#8C9573', '08':'#3A2D29', '09':'#AE4E28', '10':'#3B4766', '11':'#D3C399', '12':'#677176', '13':'#ACA197', '14':'#BF9A4E', '15':'#A9804B', '16':'#C5A79A', '17':'#9E9F85', '18':'#C49147', '19':'#33464D', '20':'#7D1B20', '21':'#94999B', '22':'#452F3B', '23':'#A8898F', '24':'#2D5472', '25':'#8CA095', '26':'#C87A6E', '27':'#AFBEB7', '28':'#8F8A44', '29':'#E3BFB6', '30':'#BE564F', '31':'#502628', '32':'#2D2B2A', '33':'#454041', '34':'#433B37', '35':'#375C4B', '36':'#376956', '37':'#5C4937', '38':'#6B605E', '39':'#587671', '40':'#63B49A', '41':'#B34B4B', '42':'#6A8DA9', '43':'#595B46', '44':'#E2DF60', '45':'#49BED5', '46':'#DF7D34', '47':'#B71B1B', '48':'#293464', '49':'#A2B963', '50':'#CF3C6F', '53':'#902F5E', '54':'#7C5177', '55':'#6F3338', '56':'#EEE9CB', '57':'#736047', '58':'#5D613F', '59':'#B9AC5B', '60':'#373C4E', '61':'#802A34', '62':'#5E3F4A', '63':'#AB9B95', '64':'#787896', '65':'#F5E89A', '66':'#DACCB7', '67':'#917382', '68':'#CDC1B2' } },
   { id:'tape6206', name:'Тесьма 6206', maker:'', kind:'tape', items:{ '01':'#C7B9B2', '02':'#AEB8BA', '03':'#C3C3BC', '04':'#C2C1B3', '05':'#C48278', '06':'#ADB0A1', '07':'#958F89', '08':'#BFB6B2' } },
   { id:'tape6207', name:'Тесьма 6207', maker:'', kind:'tape', items:{ '01':'#CFB7B0', '02':'#AFB9BE', '03':'#C5C5BF', '04':'#CCC7AA', '05':'#CD9386', '06':'#B1B2A0', '07':'#8C897E', '08':'#BCAAA2' } },
   { id:'vtape', name:'Тесьма', maker:'Vinarti', kind:'tape', items:{ 'ZR8105A-3259':'#CDC3A7' } },
-  { id:'fr1718', name:'Бахрома 1717–1719', maker:'', kind:'fringe', items:{ '1717-01':'#7B7150', '1717-02':'#7E7A6C', '1718-01':'#C6C6C4', '1718-05':'#887D6C', '1718-1077':'#6E2126', '1718-11':'#A79463', '1718-12':'#4F6166', '1718-13':'#A39F9B', '1718-18':'#C09C49', '1718-21':'#8F9A9D', '1718-32':'#292828', '1718-38':'#7D7D82', '1718-39':'#425F4D', '1718-42':'#577691', '1719-01':'#897A51', '1719-02':'#8A7F70' } },
-  { id:'vfringe', name:'Бахрома', maker:'Vinarti', kind:'fringe', items:{ 'AT8039-1803':'#AE8578', 'AT8039-2396':'#967756', 'AT8039-2727':'#CAC2B0', 'AT8039-2735':'#C7BEAC', 'AT8039-2736':'#9A8F82', 'AT8039-2738':'#A29078', 'AT8039-2741':'#A9AFA1', 'AT8039-2743':'#C79A7E', 'AT8139B-3274':'#8E8570', 'AT8139B-3276':'#C2B69C', 'AT8139B-3277':'#CBC5C1', 'AT8139B-3278':'#AAA29D', 'AT8139B-3281':'#9DA3A4', 'AT996L-1834':'#CAC6BF', 'AV8151A-3318':'#5C5F55', 'AV8151A-3319':'#594A3C', 'AV8151A-3320':'#884C2F', 'AV8151A-3321':'#887050', 'AV8151A-3322':'#656D75', 'ZT8107-3217':'#A99882', 'ZT8107A-3220':'#A29990' } },
+  { id:'fr1718', name:'Бахрома 1717–1719', maker:'', kind:'fringe', items:{ '1717-01':['#7B7150',0.335,15], '1717-02':['#7E7A6C',0.46,15], '1718-01':['#C6C6C4',1.125,7], '1718-05':['#887D6C',1.13,7], '1718-1077':['#6E2126',1.83,7], '1718-11':['#A79463',1.095,7], '1718-12':['#4F6166',1.085,7], '1718-13':['#A39F9B',1.075,7], '1718-18':['#C09C49',1.925,7], '1718-21':['#8F9A9D',1.67,7], '1718-32':['#292828',1.77,7], '1718-38':['#7D7D82',1.675,7], '1718-39':['#425F4D',1.58,7], '1718-42':['#577691',1.77,7], '1719-01':['#897A51',1.66,15], '1719-02':['#8A7F70',1.885,15] } },
+  { id:'vfringe', name:'Бахрома', maker:'Vinarti', kind:'fringe', items:{ 'AT8139B-3274':['#8E8570',0.8,12], 'AT8139B-3276':['#C2B69C',0.775,12], 'AT8139B-3277':['#CBC5C1',0.91,12], 'AT8139B-3278':['#AAA29D',0.74,12], 'AT8139B-3281':['#9DA3A4',1.025,12], 'AV8151A-3318':['#5C5F55',0.41,15], 'AV8151A-3319':['#594A3C',0.32,15], 'AV8151A-3320':['#884C2F',0.29,15], 'AV8151A-3321':['#887050',0.27,15], 'AV8151A-3322':['#656D75',0.22,15] } },
+  { id:'vpend', name:'Подвески', maker:'Vinarti', kind:'pendant', items:{ 'AT8039-1803':['#AE8578',3.18,7], 'AT8039-2396':['#967756',2.14,7], 'AT8039-2727':['#CAC2B0',1.23,7], 'AT8039-2735':['#C7BEAC',1.12,7], 'AT8039-2736':['#9A8F82',2.27,7], 'AT8039-2738':['#A29078',2.105,7], 'AT8039-2741':['#A9AFA1',2.345,7], 'AT8039-2743':['#C79A7E',1.09,7], 'AT996L-1834':['#CAC6BF',1.19,12], 'ZT8107-3217':['#A99882',1.825,9], 'ZT8107A-3220':['#A29990',1.025,12] } },
 ];
 const MIRROR = new Set(['klot-3']); // фото без бесшовной обработки
 // коллекции; maker — производитель (группа в выпадающем списке «Каталог»),
-// kind — что это: fabric — ткань, tape — тесьма, pompon — помпоны, tassel — кисти, fringe — бахрома
+// kind — что это: fabric — ткань, tape — тесьма, pompon — помпоны, tassel — кисти, fringe — бахрома, pendant — подвески
 const COLLECTIONS = [
   { id:'klot', name:'Клот', maker:'', kind:'fabric', dir:'fabrics/klot', items:Object.entries(KLOT) },
   ...[['chloe','Chloe','Blend'],['tamru','Tamru','Terra'],['tendu','Tendu','Terra'],['sunrise','Sunrise','Rembrandt'],['kroy','Kroy','Royal']]
     .map(([id,name,maker])=>({ id, name, maker, kind:'fabric', dir:`fabrics/${id}`, items:Object.entries(NEW[id]) })),
-  ...DECOR.map(c=>({ ...c, dir:`fabrics/${c.id}`, items:Object.entries(c.items).map(([n,color])=>[n,[color,null]]) })),
+  ...DECOR.map(c=>({ ...c, dir:`fabrics/${c.id}`, items:Object.entries(c.items).map(([n,v])=>{ const [color,ta,th]=[].concat(v); return [n,[color,null,ta,th]]; }) })),
 ];
-const FABRICS = COLLECTIONS.flatMap(c=>c.items.map(([n,[color,cm]])=>({ id:`${c.id}-${n}`, col:c.id, colName:c.name, kind:c.kind,
+const FABRICS = COLLECTIONS.flatMap(c=>c.items.map(([n,[color,cm,ta,th]])=>({ id:`${c.id}-${n}`, col:c.id, colName:c.name, kind:c.kind,
+  ...(ta ? { tile:`${c.dir}/tile/${n}.webp`, ta, th } : {}),
   name:/^\d+$/.test(n) ? `№ ${n}` : n, short:n.length>5 ? n.split('-').pop() : n, color, cm, img:`${c.dir}/${n}.jpg`, zoom:`${c.dir}/zoom/${n}.jpg`,
   orig:c.kind==='fabric' ? `${c.dir}/orig/${n}.jpg` : `${c.dir}/zoom/${n}.jpg` })));
+// «без декора» — для декора низа: пункт в начале строки образцов
+const NONE = { id:'none', col:'none', colName:'', kind:'none', name:'без декора', short:'нет', color:'transparent', cm:null,
+  img:"data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" fill="#efe9e2"/><path d="M8 32L32 8" stroke="#b9ab9c" stroke-width="2"/></svg>') };
+NONE.zoom=NONE.orig=NONE.img;
+FABRICS.push(NONE);
 const fab = id => FABRICS.find(f=>f.id===id) || FABRICS[0];
-const fabLabel = f => `${f.colName} · ${f.name}`;
+const fabLabel = f => f.colName ? `${f.colName} · ${f.name}` : f.name;
 // что можно выбрать для каждой части: основа — только ткани, кант и банты — ткани и тесьма, помпоны и кисть — только свой декор
-const PART_KINDS = { main:['fabric'], hem:['fabric'], ruffle:['fabric'], kant1:['fabric','tape'], kant2:['fabric','tape'], bows:['fabric','tape'], pompons:['pompon'], tassel:['tassel'] };
+const PART_KINDS = { main:['fabric'], hem:['fabric'], ruffle:['fabric'], kant1:['fabric','tape'], kant2:['fabric','tape'], bows:['fabric','tape'], pompons:['pompon'], tassel:['tassel'], trim:['fringe','pompon','pendant'] };
+const KIND_NAMES = { fringe:'Бахрома', pompon:'Помпоны', pendant:'Подвески' };
 const colsFor = p => COLLECTIONS.filter(c=>PART_KINDS[p].includes(c.kind));
 // коллекция, которую листаем для части: выбранная клиентом, иначе та, из которой взята текущая ткань
+// образцы части в строке выбора; у декора низа первым — «без декора»
+const stripList = p => [...(p==='trim'?[NONE]:[]), ...FABRICS.filter(x=>x.col===browseCol(p))];
 const browseCol = p => { const c=S.browse[p] || fab(S.fabrics[p]).col; return colsFor(p).some(x=>x.id===c) ? c : colsFor(p)[0].id; };
 
 /* ---------- Дизайны ---------- */
@@ -451,6 +462,8 @@ const TWO = { kant1:'Внешний кант', kant2:'Внутренний ка�
 // номер модели, как в сторис ателье «Дизайны штор» (code — внутренний номер: по нему лежат фото и работы)
 // 1–15 — модели из сторис; 01 «Полосы и рюши», 10 «Фестоны», 11 «Рамка-волна» в сторис нет — идут следом
 const NUM = { 17:1, 18:2, 16:3, 15:4, 14:5, 13:6, 6:7, 7:8, 8:9, 5:10, 4:11, 3:12, 12:13, 9:14, 2:15, 1:16, 10:17, 11:18 };
+// прямой низ без своего декора — сюда можно добавить бахрому, помпоны или подвески (модели 1–6, 12, 13)
+const TRIM = new Set([17,18,16,15,14,13,3,12]);
 const DESIGNS = [
   [1,'Полосы и рюши', D('straight',[K('stripes','kant1',7,10,{ stop:6 })],{ hem:12, ruffle:15, fabrics:{ main:Gr, kant1:Be, ruffle:Be } })],
   [2,'Волна с кистью', D('notch2',[K('inner-u','kant1',9,10,{ db:7 })],{ depth:10, hem:30, tassel:true, fabrics:{ main:Be, kant1:Gr, tassel:TsBe } })],
@@ -471,17 +484,17 @@ const DESIGNS = [
   // без канта: только строчка подгиба по бокам; у «Конвертика» подгиб шире и идёт ещё по низу, углы — косым швом
   [17,'Классическая', D('straight',[],{ hem:12, seam:{ w:4 }, fabrics:{ main:Gr } })],
   [18,'Конвертик', D('straight',[],{ hem:14, seam:{ w:9, bottom:true }, fabrics:{ main:Gr } })],
-].map(([n,name,d])=>({ ...d, name, id:'d'+n, code:String(n).padStart(2,'0'), num:NUM[n] })).sort((a,b)=>a.num-b.num);
+].map(([n,name,d])=>({ ...d, name, id:'d'+n, code:String(n).padStart(2,'0'), num:NUM[n], trim:TRIM.has(n) })).sort((a,b)=>a.num-b.num);
 const design = id => DESIGNS.find(d=>d.id===id);
 document.getElementById('d-count').textContent=DESIGNS.length;
 
-const PART_NAMES = { main:'Основная ткань', kant1:'Кант', kant2:'Второй кант', hem:'Ткань низа', bows:'Бантики', ruffle:'Рюши', pompons:'Помпоны', tassel:'Кисть' };
-const SHORT = { main:'Основа', kant1:'Кант', kant2:'Второй кант', hem:'Низ', bows:'Бантики', ruffle:'Рюши', pompons:'Помпоны', tassel:'Кисть' };
+const PART_NAMES = { main:'Основная ткань', kant1:'Кант', kant2:'Второй кант', hem:'Ткань низа', bows:'Бантики', ruffle:'Рюши', pompons:'Помпоны', tassel:'Кисть', trim:'Декор по низу' };
+const SHORT = { main:'Основа', kant1:'Кант', kant2:'Второй кант', hem:'Низ', bows:'Бантики', ruffle:'Рюши', pompons:'Помпоны', tassel:'Кисть', trim:'Декор' };
 const BOTTOMS = { notch2:'фигурный низ', ogee:'низ с мысом', scallop4:'фестоны' };
 function partsOf(d){
   const p=['main', ...['kant1','kant2'].filter(x=>d.kants.some(k=>k.part===x))];
   if (d.hemPart) p.push('hem'); if (d.bows) p.push('bows'); if (d.ruffle) p.push('ruffle');
-  if (d.pompons) p.push('pompons'); if (d.tassel) p.push('tassel');
+  if (d.pompons) p.push('pompons'); if (d.tassel) p.push('tassel'); if (d.trim) p.push('trim');
   return p;
 }
 function tagsOf(d){
@@ -505,7 +518,7 @@ const FILTERS = [
 const S = {
   design:DESIGNS[0].id, filter:'all', part:'main', view:'raised', photo:true,
   size:null,  // { w, h, chain } в см; null — клиент ещё не указал размер, цену не показываем
-  fabrics:{ main:Gr, kant1:Be, kant2:Be, hem:Be, bows:Be, ruffle:Be, pompons:Pom, tassel:TsBe },
+  fabrics:{ main:Gr, kant1:Be, kant2:Be, hem:Be, bows:Be, ruffle:Be, pompons:Pom, tassel:TsBe, trim:'none' },
   widths:{}, browse:{},
 };
 function resetWidths(){ S.widths={}; design(S.design).kants.forEach(k=>{ if(S.widths[k.part]==null) S.widths[k.part]=k.w; }); }
@@ -543,12 +556,12 @@ const swatch = f => f.img;
 /* ---------- Фото-режим ---------- */
 // Для этих дизайнов превью — перекрашенное фото: светотень, складки и строчки берутся с фото, цвет — из выбранной ткани.
 // photos/dNN-main.png и -kant.png — серая светотень (200 = обычный тон ткани), у -kant прозрачность = доля канта.
-// Готовятся скриптом tools/photo_prep.py. link — части, которые на фото сшиты из той же ткани и меняются вместе.
+// Готовятся скриптом tools/photo_prep.py. bot — низ шторы на фото (левый и правый край, строка — доли картинки): туда вешаем декор низа. link — части, которые на фото сшиты из той же ткани и меняются вместе.
 // parts — какие части выбираются в фото-режиме (по умолчанию основа и кант); второй из них красит слой -kant.
 const PHOTOS = {
   '01': { base:'photos/d01', link:{ kant1:['ruffle'] }, labels:{ kant1:'Полосы и рюши' } },
   '02': { base:'photos/d02', parts:['main','kant1','tassel'], link:{}, labels:{ kant1:'Кант' } },
-  '03': { base:'photos/d03', link:{}, labels:{ kant1:'Кант' } },
+  '03': { base:'photos/d03', bot:[0.0525, 0.9341, 0.9746], link:{}, labels:{ kant1:'Кант' } },
   '04': { base:'photos/d04', link:{ kant1:['hem','bows'] }, labels:{ kant1:'Полосы, низ и банты' } },
   '05': { base:'photos/d05', link:{ main:['bows'], kant1:['kant2'] }, labels:{ kant1:'Полосы' } },
   '06': { base:'photos/d06', parts:['main','pompons'], link:{}, labels:{} },
@@ -557,11 +570,11 @@ const PHOTOS = {
   '09': { base:'photos/d09', parts:['main','kant1','tassel'], link:{}, labels:{ kant1:'Кант' } },
   '10': { base:'photos/d10', parts:['main'], link:{}, labels:{} },
   '11': { base:'photos/d11', parts:['main','kant1','tassel'], link:{}, labels:{ kant1:'Кант' } },
-  '12': { base:'photos/d12', link:{ kant1:['kant2'] }, labels:{ kant1:'Кант' } },
-  '13': { base:'photos/d13', link:{ kant1:['kant2'] }, labels:{ kant1:'Кант' } },
-  '14': { base:'photos/d14', link:{}, labels:{ kant1:'Кант' } },
-  '15': { base:'photos/d15', link:{}, labels:{ kant1:'Кант' } },
-  '16': { base:'photos/d16', link:{}, labels:{ kant1:'Кант' } },
+  '12': { base:'photos/d12', bot:[0.0378, 0.9595, 0.9707], link:{ kant1:['kant2'] }, labels:{ kant1:'Кант' } },
+  '13': { base:'photos/d13', bot:[0.0535, 0.9456, 0.9693], link:{ kant1:['kant2'] }, labels:{ kant1:'Кант' } },
+  '14': { base:'photos/d14', bot:[0.0301, 0.9615, 0.9686], link:{}, labels:{ kant1:'Кант' } },
+  '15': { base:'photos/d15', bot:[0.0469, 0.9495, 0.9753], link:{}, labels:{ kant1:'Кант' } },
+  '16': { base:'photos/d16', bot:[0.0399, 0.9566, 0.9677], link:{}, labels:{ kant1:'Кант' } },
 };
 // карты в WebP (tools/photo_web.py): маленькие -thumb для каталога грузятся сразу,
 // большие — только для открытого дизайна (держим в памяти один набор: телефоны закрывают страницу при нехватке памяти);
@@ -580,19 +593,29 @@ Object.keys(PHOTOS).forEach(code=>photoSet(code, true));
 document.addEventListener('pointerdown', e=>{ const b=e.target.closest('[data-design]'), d=b && design(b.dataset.design); if (d && photoOf(d)) photoSet(d.code, false); });
 const photoOf = d => PHOTOS[d.code];
 const photoMode = d => !!photoOf(d) && S.photo;
-const shownParts = d => photoMode(d) ? (photoOf(d).parts || ['main','kant1']) : partsOf(d);
+const shownParts = d => photoMode(d) ? [...(photoOf(d).parts || ['main','kant1']), ...(d.trim?['trim']:[])] : partsOf(d);
 function linkParts(d){ const p=photoOf(d); if (!p || !S.photo) return; Object.entries(p.link).forEach(([from,to])=>to.forEach(t=>{ S.fabrics[t]=S.fabrics[from]; })); }
 // два общих холста для перекраски слоёв: создаём один раз, а не на каждую перерисовку
 const TINT=[document.createElement('canvas'), document.createElement('canvas')];
 // высота верхней полосы под кнопками превью на телефоне — штору в неё не рисуем
 const SEG_BAND = (W, thumb) => thumb ? 0 : innerWidth<=560 ? 40 : 56;
+// декор низа: повторяем кусок с фото товара от xl до xr, верх тесьмы — на линии y; ppc — пикселей на см
+const tileImgs={};
+function tileImg(f){ if (!tileImgs[f.id]){ const im=new Image(); im.onload=()=>redraw(); im.src=f.tile; tileImgs[f.id]=im; } return tileImgs[f.id]; }
+function drawTrim(c, f, xl, xr, y, ppc){
+  if (!f.tile) return; const im=tileImg(f); if (!loaded(im)) return;
+  const th=f.th*ppc, tw=th*f.ta;
+  for (let x=xl; x<xr-.5; x+=tw){ const w=Math.min(tw, xr-x); c.drawImage(im, 0, 0, im.naturalWidth*w/tw, im.naturalHeight, x, y-th*.03, w, th); }
+}
+const trimOf = (d, fabrics) => d.trim ? fab(fabrics.trim) : NONE;
 function drawPhoto(cv, d, fabrics, thumb){
   const W=cv.clientWidth, H=cv.clientHeight; if(!W||!H) return;
   const dpr=Math.min(2, window.devicePixelRatio||1), T=tokens();
   const ready = set => Object.values(set).every(loaded);
   const set = photoSet(d.code, !!thumb), ok=ready(set);
   // ничего не изменилось — не перерисовываем (на телефоне перерисовки идут часто: адресная строка, шрифты)
-  const key=[d.code,W,H,dpr,T.wall,ok,...(photoOf(d).parts||['main','kant1']).map(p=>fabrics[p])].join('|');
+  const tr=thumb ? NONE : trimOf(d, fabrics), trOk=!tr.tile || loaded(tileImg(tr));
+  const key=[d.code,W,H,dpr,T.wall,ok,tr.id,trOk,shadeSize(false).w,...(photoOf(d).parts||['main','kant1']).map(p=>fabrics[p])].join('|');
   if (cv._key===key && !cv._t0) return;
   cv._key=key;
   cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr);
@@ -605,8 +628,11 @@ function drawPhoto(cv, d, fabrics, thumb){
   if (cv._t0){ fade=Math.min(1,(performance.now()-cv._t0)/300); if (fade<1) requestAnimationFrame(redraw); else cv._t0=0; }
   const im=set.main, ik=set.kant;
   const band=SEG_BAND(W,thumb), Ha=H-band;
-  const pad=thumb?.06:band?.035:.07, s=Math.min(W*(1-2*pad)/im.naturalWidth, Ha*(1-2*pad)/im.naturalHeight);
-  const dw=im.naturalWidth*s, dh=im.naturalHeight*s, dx=(W-dw)/2, dy=band+(Ha-dh)/2;
+  // декор низа ниже края фото — оставляем под него место; масштаб: ширина шторы на фото = ширина заказа
+  const bot=photoOf(d).bot, pcm=bot ? (bot[1]-bot[0])*im.naturalWidth/shadeSize(false).w : 0;
+  const below=tr.tile && bot ? Math.max(0, bot[2]*im.naturalHeight+tr.th*pcm-im.naturalHeight) : 0;
+  const pad=thumb?.06:band?.035:.07, s=Math.min(W*(1-2*pad)/im.naturalWidth, Ha*(1-2*pad)/(im.naturalHeight+below));
+  const dw=im.naturalWidth*s, dh=im.naturalHeight*s, dx=(W-dw)/2, dy=band+(Ha-dh-below*s)/2;
   // слой ткани: светотень × цвет ткани × 255/200, затем возвращаем прозрачность слоя
   const tint = (img, color) => {
     const [n, copy]=TINT; n.width=copy.width=Math.round(dw*dpr); n.height=copy.height=Math.round(dh*dpr);
@@ -625,6 +651,7 @@ function drawPhoto(cv, d, fabrics, thumb){
   // третий слой (помпоны своей тканью), если он есть у фото
   const xp=(photoOf(d).parts||[])[2], ix=set.extra;
   if (xp && loaded(ix)) c.drawImage(tint(ix, fab(fabrics[xp]).color),dx,dy,dw,dh);
+  if (tr.tile && bot) drawTrim(c, tr, dx+bot[0]*dw, dx+bot[1]*dw, dy+bot[2]*dh, pcm*s);
 }
 
 /* ---------- Готовые работы ---------- */
@@ -678,7 +705,7 @@ function draw(cv, d, fabrics, widths, view, thumb){
   // штора без окна в пропорциях заказа: подбираем размер так, чтобы штора вместе с низом и декором
   // (фигурный край, рюши, кисть, помпоны) заняла всё превью
   const band=SEG_BAND(W,thumb), Ha=H-band-(innerWidth<=560 && !$('m-width').hidden ? band : band*.4);  // снизу — место под ширину канта на телефоне
-  const Z=shadeSize(thumb), r=Z.w/Z.h, extraCm=d.depth+(d.ruffle||0)+(d.tassel?24:0)+(d.pompons?7:0);
+  const Z=shadeSize(thumb), r=Z.w/Z.h, extraCm=d.depth+(d.ruffle||0)+(d.tassel?24:0)+(d.pompons?7:0)+(trimOf(d,fabrics).th||0);
   const fit=thumb?.86:.9, ww=Math.min(W*(thumb?.72:.8), Ha*fit/(.9/r+extraCm/Z.w)), wh=ww/r;
   const shownH=ww*(.9/r+extraCm/Z.w), wx=(W-ww)/2, wy=band+(Ha-shownH)/2+ww*.02;
   const fr=Math.max(3,Math.min(10,ww*.035));
@@ -707,7 +734,7 @@ function draw(cv, d, fabrics, widths, view, thumb){
     c.closePath();
   };
   const pattern = id => { const f=fab(id), t=f.kind==='fabric' && texture(f, ppc*f.cm*2*dpr); if (!t) return f.color; const p=c.createPattern(t,'repeat'); const ts=(ppc*f.cm*2)/t.width; if(p.setTransform) p.setTransform(new DOMMatrix([ts,0,0,ts,x0,y0])); return p; };
-  const P = {}; partsOf(d).forEach(p=>P[p]=pattern(fabrics[p]));
+  const P = {}; partsOf(d).filter(p=>p!=='trim').forEach(p=>P[p]=pattern(fabrics[p]));
 
   // тень и силуэт
   c.save(); c.shadowColor='rgba(0,0,0,.28)'; c.shadowBlur=thumb?8:22; c.shadowOffsetY=thumb?3:9;
@@ -819,6 +846,7 @@ function draw(cv, d, fabrics, widths, view, thumb){
     }
   }
   if (d.tassel) drawTassel(c, mid, yb(mid), ppc, P.tassel);
+  drawTrim(c, trimOf(d, fabrics), x0, x1, yb(mid), ppc);
   if (d.bows){
     const B=d.bows, g1=kantGeo(d.kants[0]);
     let o=g1.dd+g1.kw/2;
@@ -932,10 +960,9 @@ function renderParts(){
 }
 function renderEditor(){
   const p=S.part, f=fab(S.fabrics[p]), col=browseCol(p), photo=photoMode(design(S.design)), isKant=S.widths[p]!=null && !photo;
-  const collection=COLLECTIONS.find(c=>c.id===col);
   $('editor').innerHTML = `
     <div class="ed-head"><div><h3>${label(p)}</h3><p>Выбрано: ${fabLabel(f)}</p></div>
-      <button type="button" class="zoom-btn" data-zoom aria-label="Рассмотреть ткань ${fabLabel(f)} крупно"><i style="background-image:url(${f.zoom})"></i>Ткань вблизи</button></div>
+      <button type="button" class="zoom-btn" data-zoom aria-label="Рассмотреть ткань ${fabLabel(f)} крупно"><i style="background-image:url(${f.zoom})"></i>${f.kind==='fabric'?'Ткань вблизи':'Рассмотреть'}</button></div>
     ${isKant?`<div class="width">
       <div class="width-top"><label for="w-range">Ширина канта</label>
         <div class="stepper"><button type="button" data-w="-0.5" aria-label="Уже на 0,5 см">−</button><output id="w-out" for="w-range">${cm(S.widths[p])}</output><button type="button" data-w="0.5" aria-label="Шире на 0,5 см">+</button></div></div>
@@ -943,7 +970,7 @@ function renderEditor(){
       <small>От 1 до 12 см. Схема показывает кант в масштабе шторы ${shadeSize(false).w} см.</small></div>`:''}
     ${photo && S.widths[p]!=null?`<p class="note">На фото ширина канта как у образца. Чтобы изменить её, переключите превью на «Схему».</p>`:''}
     <div class="chips scroll" role="radiogroup" aria-label="Тип ткани">${colsFor(p).map(c=>`<label class="chip"><input type="radio" name="col" value="${c.id}" ${c.id===col?'checked':''}><span>${c.name}</span></label>`).join('')}</div>
-    <div class="fabrics">${collection.items.map(([n])=>{ const x=fab(`${col}-${n}`), on=x.id===f.id;
+    <div class="fabrics">${stripList(p).map(x=>{ const on=x.id===f.id;
       return `<button type="button" class="fab${on?' on':''}" data-fab="${x.id}" aria-pressed="${on}"><i style="background-image:url(${swatch(x)})"></i><span>${x.name}</span></button>`; }).join('')}</div>
     ${p!=='main' && PART_KINDS[p].includes('fabric')?`<button type="button" class="link" data-same>Взять основную ткань</button>`:''}`;
   renderDock();
@@ -951,13 +978,15 @@ function renderEditor(){
 // список коллекций для выпадающего меню: группы по производителю, если он указан
 function colOptions(cur, p){
   const cols=colsFor(p), opt=c=>`<option value="${c.id}"${c.id===cur?' selected':''}>${c.name}</option>`;
+  // декор низа — группы по виду (бахрома, помпоны, подвески), остальное — по производителю
+  if (p==='trim') return Object.entries(KIND_NAMES).map(([k,n])=>`<optgroup label="${n}">${cols.filter(c=>c.kind===k).map(c=>opt({ ...c, name:c.maker ? `${c.name} ${c.maker}` : c.name })).join('')}</optgroup>`).join('');
   const makers=[...new Set(cols.map(c=>c.maker))];
   return makers.map(m=>m ? `<optgroup label="${m}">${cols.filter(c=>c.maker===m).map(opt).join('')}</optgroup>` : cols.filter(c=>!c.maker).map(opt).join('')).join('');
 }
 // телефон: вкладки частей и одна строка тканей под шторой
 function renderDock(){
   const d=design(S.design), p=S.part, f=fab(S.fabrics[p]), old=document.querySelector('.m-strip'), keep=old && old.dataset.part===p ? old.scrollLeft : null;
-  const list=FABRICS.filter(x=>x.col===browseCol(p)), wp=photoMode(d) ? null : widthPart(d);
+  const list=stripList(p), wp=photoMode(d) ? null : widthPart(d);
   $('m-dock').innerHTML = `<div class="m-tabs" role="tablist" aria-label="Части шторы">${shownParts(d).map(q=>`<button type="button" class="m-tab${q===p?' on':''}" data-part="${q}" role="tab" aria-selected="${q===p}"><i style="background-image:url(${swatch(fab(S.fabrics[q]))})"></i>${label(q,true)}</button>`).join('')}
       <button type="button" class="m-tab m-zoom" data-zoom aria-label="Рассмотреть ткань ${fabLabel(f)} крупно">Вблизи</button></div>
     <div class="m-row"><label class="m-col"><span class="sr">Каталог тканей</span><select name="col" aria-label="Каталог тканей">${colOptions(browseCol(p), p)}</select></label>
@@ -995,7 +1024,7 @@ function stepDesign(n){
   renderFabricsView(); toast(`№ ${d.num} · ${d.name}`);
 }
 function stepFabric(part, n){
-  const d=design(S.design), f=fab(S.fabrics[part]), list=FABRICS.filter(x=>x.col===browseCol(part)), i=list.findIndex(x=>x.id===f.id);
+  const d=design(S.design), f=fab(S.fabrics[part]), list=stripList(part), i=list.findIndex(x=>x.id===f.id);
   S.fabrics[part]=list[i<0 ? (n>0?0:list.length-1) : (i+n+list.length)%list.length].id; S.custom=true; S.part=part; delete S.browse[part];
   linkParts(d); renderParts(); renderEditor(); redraw(); updateNote();
   toast(`${label(part,true)}: ${fab(S.fabrics[part]).name}`);
@@ -1104,6 +1133,7 @@ const PRICE = {
   fabric: { klot: 3000 },  // ₽ за погонный метр по коллекциям; нет цены — сумму не считаем, её назовёт менеджер
   perMeter: { pompons: 1000 },  // ₽ за метр ширины шторы: помпоны, позже репсы, бусины…
   perPiece: { tassel: 500 },    // ₽ за штуку: кисть
+  decor: { pompon: 1000 },      // ₽ за метр ширины: декор по низу по видам; бахрома и подвески — цену назовёт менеджер
   round: 100,           // округляем только итог, вверх
 };
 const LIMITS = { w:[40,250], h:[100,500], chain:[30,500] };
@@ -1115,11 +1145,12 @@ function price(){
   const mainM = h+a<=PRICE.roll ? w+a : (h+a)*Math.ceil((w+a)/PRICE.roll);   // штора выше рулона — кроим по высоте
   const parts=partsOf(d), bought=p=>p in PRICE.perMeter || p in PRICE.perPiece;
   // канты, низ, банты: по 0,5 м на каждую разную ткань; рюши — своя норма
-  const trims = new Set(parts.filter(p=>p!=='main' && p!=='ruffle' && !bought(p)).map(p=>S.fabrics[p]));
+  const trims = new Set(parts.filter(p=>p!=='main' && p!=='ruffle' && p!=='trim' && !bought(p)).map(p=>S.fabrics[p]));
+  const tr=trimOf(d, S.fabrics), decor = tr.kind==='none' ? 0 : (PRICE.decor[tr.kind] ?? NaN)*w;
   let sum = mainM*cost(S.fabrics.main) + [...trims].reduce((t,id)=>t+PRICE.trim*cost(id),0)
           + (parts.includes('ruffle') ? PRICE.ruffle*cost(S.fabrics.ruffle) : 0)
           + w*PRICE.cornice + w*h*PRICE.work
-          + parts.reduce((t,p)=>t+(PRICE.perMeter[p]||0)*w+(PRICE.perPiece[p]||0),0);
+          + parts.reduce((t,p)=>t+(PRICE.perMeter[p]||0)*w+(PRICE.perPiece[p]||0),0) + decor;
   return isNaN(sum) ? null : Math.ceil(sum/PRICE.round)*PRICE.round;
 }
 const priceText = (v=price()) => v==null ? 'по запросу' : `≈ ${rub(v)}`;
